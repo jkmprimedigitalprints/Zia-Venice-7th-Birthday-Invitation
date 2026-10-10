@@ -116,6 +116,9 @@ export const GallerySection: React.FC = () => {
                   <p className="font-sacramento text-2xl sm:text-3xl lg:text-4xl text-[#9E4D6E] font-normal leading-tight">
                     Princess Zia Venice
                   </p>
+                  <p className="font-poppins text-[10px] sm:text-xs font-medium text-[#4A7B9D]">
+                    7th Birthday Fairytale Celebration · Click to view full
+                  </p>
                 </div>
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFF9F3] border border-[#C49A55]/40 text-[#6C567B] shadow-xs group-hover:scale-105 transition-transform">
                   <Maximize2 className="h-4 w-4 text-[#C49A55]" />

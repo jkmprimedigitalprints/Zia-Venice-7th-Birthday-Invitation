@@ -4,17 +4,18 @@ import { Crown, Sparkles, Heart } from 'lucide-react';
 interface TraditionPerson {
   number: number;
   label: string;
-  name: string; // Name slot
+  name: string;
 }
 
 type TraditionKey =
   | 'roses'
-  | 'candles'
   | 'wishes'
-  | 'blueBills'
-  | 'chocolates'
   | 'makeups'
-  | 'gifts';
+  | 'chocolates'
+  | 'blueBills'
+  | 'candles'
+  | 'gifts'
+  | 'miniCakes';
 
 interface TraditionCategory {
   id: TraditionKey;
@@ -27,7 +28,6 @@ interface TraditionCategory {
 export const SevenTraditionsSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TraditionKey>('roses');
 
-  // Clean list of 7 names per category without paragraphs or long meaning texts
   const traditionsData: Record<TraditionKey, TraditionCategory> = {
     roses: {
       id: 'roses',
@@ -35,28 +35,13 @@ export const SevenTraditionsSection: React.FC = () => {
       symbol: '🌹',
       itemType: 'Rose',
       list: [
-        { number: 1, label: '1st Rose', name: '' },
-        { number: 2, label: '2nd Rose', name: '' },
-        { number: 3, label: '3rd Rose', name: '' },
-        { number: 4, label: '4th Rose', name: '' },
-        { number: 5, label: '5th Rose', name: '' },
-        { number: 6, label: '6th Rose', name: '' },
-        { number: 7, label: '7th Rose', name: '' },
-      ],
-    },
-    candles: {
-      id: 'candles',
-      label: '7 CANDLES',
-      symbol: '🕯️',
-      itemType: 'Candle',
-      list: [
-        { number: 1, label: '1st Candle', name: '' },
-        { number: 2, label: '2nd Candle', name: '' },
-        { number: 3, label: '3rd Candle', name: '' },
-        { number: 4, label: '4th Candle', name: '' },
-        { number: 5, label: '5th Candle', name: '' },
-        { number: 6, label: '6th Candle', name: '' },
-        { number: 7, label: '7th Candle', name: '' },
+        { number: 1, label: '1st Rose', name: 'Lolo Melencio' },
+        { number: 2, label: '2nd Rose', name: 'Papa Nog' },
+        { number: 3, label: '3rd Rose', name: 'Tito Emmel' },
+        { number: 4, label: '4th Rose', name: 'Tito Bernard' },
+        { number: 5, label: '5th Rose', name: 'Kuya MC' },
+        { number: 6, label: '6th Rose', name: 'Kuya Sky' },
+        { number: 7, label: '7th Rose', name: 'Daddy Jun' },
       ],
     },
     wishes: {
@@ -65,28 +50,28 @@ export const SevenTraditionsSection: React.FC = () => {
       symbol: '🪄',
       itemType: 'Wish',
       list: [
-        { number: 1, label: '1st Wish', name: '' },
-        { number: 2, label: '2nd Wish', name: '' },
-        { number: 3, label: '3rd Wish', name: '' },
-        { number: 4, label: '4th Wish', name: '' },
-        { number: 5, label: '5th Wish', name: '' },
-        { number: 6, label: '6th Wish', name: '' },
-        { number: 7, label: '7th Wish', name: '' },
+        { number: 1, label: '1st Wish', name: 'Mama Endang' },
+        { number: 2, label: '2nd Wish', name: 'Tita Liit' },
+        { number: 3, label: '3rd Wish', name: 'Tita Melody' },
+        { number: 4, label: '4th Wish', name: 'Tita Sarah' },
+        { number: 5, label: '5th Wish', name: 'Lola Lengget' },
+        { number: 6, label: '6th Wish', name: 'Lola Lolita' },
+        { number: 7, label: '7th Wish', name: 'Nanay Santa' },
       ],
     },
-    blueBills: {
-      id: 'blueBills',
-      label: '7 BLUE BILLS',
-      symbol: '💵',
-      itemType: 'Blue Bill',
+    makeups: {
+      id: 'makeups',
+      label: '7 MAKE UP',
+      symbol: '💄',
+      itemType: 'Make Up',
       list: [
-        { number: 1, label: '1st Blue Bill', name: '' },
-        { number: 2, label: '2nd Blue Bill', name: '' },
-        { number: 3, label: '3rd Blue Bill', name: '' },
-        { number: 4, label: '4th Blue Bill', name: '' },
-        { number: 5, label: '5th Blue Bill', name: '' },
-        { number: 6, label: '6th Blue Bill', name: '' },
-        { number: 7, label: '7th Blue Bill', name: '' },
+        { number: 1, label: '1st Make Up', name: 'Ate Princess' },
+        { number: 2, label: '2nd Make Up', name: 'Ate Chloe' },
+        { number: 3, label: '3rd Make Up', name: 'Yannah' },
+        { number: 4, label: '4th Make Up', name: 'Ate Kia' },
+        { number: 5, label: '5th Make Up', name: 'Ate Che' },
+        { number: 6, label: '6th Make Up', name: 'Ate Chiel' },
+        { number: 7, label: '7th Make Up', name: 'Ate Jannah' },
       ],
     },
     chocolates: {
@@ -95,28 +80,43 @@ export const SevenTraditionsSection: React.FC = () => {
       symbol: '🍫',
       itemType: 'Chocolate',
       list: [
-        { number: 1, label: '1st Chocolate', name: '' },
-        { number: 2, label: '2nd Chocolate', name: '' },
-        { number: 3, label: '3rd Chocolate', name: '' },
-        { number: 4, label: '4th Chocolate', name: '' },
-        { number: 5, label: '5th Chocolate', name: '' },
-        { number: 6, label: '6th Chocolate', name: '' },
-        { number: 7, label: '7th Chocolate', name: '' },
+        { number: 1, label: '1st Chocolate', name: 'Kuya Abiezer' },
+        { number: 2, label: '2nd Chocolate', name: 'Kuya Craig' },
+        { number: 3, label: '3rd Chocolate', name: 'Hezekiah' },
+        { number: 4, label: '4th Chocolate', name: 'Ate Kaykay' },
+        { number: 5, label: '5th Chocolate', name: 'Kuya Jayrell' },
+        { number: 6, label: '6th Chocolate', name: 'Ate Zhyrish' },
+        { number: 7, label: '7th Chocolate', name: 'Ate Tirzah' },
       ],
     },
-    makeups: {
-      id: 'makeups',
-      label: '7 MAKEUPS',
-      symbol: '💄',
-      itemType: 'Makeup',
+    blueBills: {
+      id: 'blueBills',
+      label: '7 BLUE BILLS',
+      symbol: '💵',
+      itemType: 'Blue Bill',
       list: [
-        { number: 1, label: '1st Makeup', name: '' },
-        { number: 2, label: '2nd Makeup', name: '' },
-        { number: 3, label: '3rd Makeup', name: '' },
-        { number: 4, label: '4th Makeup', name: '' },
-        { number: 5, label: '5th Makeup', name: '' },
-        { number: 6, label: '6th Makeup', name: '' },
-        { number: 7, label: '7th Makeup', name: '' },
+        { number: 1, label: '1st Blue Bill', name: 'Ninong Jed' },
+        { number: 2, label: '2nd Blue Bill', name: 'Ninong Mher' },
+        { number: 3, label: '3rd Blue Bill', name: 'Ninong Sherman' },
+        { number: 4, label: '4th Blue Bill', name: 'Ninong Aike' },
+        { number: 5, label: '5th Blue Bill', name: 'Ninong Uya' },
+        { number: 6, label: '6th Blue Bill', name: 'Ninong Paul' },
+        { number: 7, label: '7th Blue Bill', name: 'Ninong Richard' },
+      ],
+    },
+    candles: {
+      id: 'candles',
+      label: '7 CANDLES',
+      symbol: '🕯️',
+      itemType: 'Candle',
+      list: [
+        { number: 1, label: '1st Candle', name: 'Ninang Melannie' },
+        { number: 2, label: '2nd Candle', name: 'Ninang Regine' },
+        { number: 3, label: '3rd Candle', name: 'Ninang Camille' },
+        { number: 4, label: '4th Candle', name: 'Ninang Sabel' },
+        { number: 5, label: '5th Candle', name: 'Ninang Marlyn' },
+        { number: 6, label: '6th Candle', name: 'Ninang Rona' },
+        { number: 7, label: '7th Candle', name: 'Tita Ninang Mae' },
       ],
     },
     gifts: {
@@ -125,13 +125,28 @@ export const SevenTraditionsSection: React.FC = () => {
       symbol: '🎁',
       itemType: 'Gift',
       list: [
-        { number: 1, label: '1st Gift', name: '' },
-        { number: 2, label: '2nd Gift', name: '' },
-        { number: 3, label: '3rd Gift', name: '' },
-        { number: 4, label: '4th Gift', name: '' },
-        { number: 5, label: '5th Gift', name: '' },
-        { number: 6, label: '6th Gift', name: '' },
-        { number: 7, label: '7th Gift', name: '' },
+        { number: 1, label: '1st Gift', name: 'Ninang Jacqueline Oraya' },
+        { number: 2, label: '2nd Gift', name: 'Ninang Mhira' },
+        { number: 3, label: '3rd Gift', name: 'Ninong Angelo' },
+        { number: 4, label: '4th Gift', name: 'Ninang Janette' },
+        { number: 5, label: '5th Gift', name: 'Tita Ganda' },
+        { number: 6, label: '6th Gift', name: 'Tito Harley' },
+        { number: 7, label: '7th Gift', name: 'Tito Kenneth' },
+      ],
+    },
+    miniCakes: {
+      id: 'miniCakes',
+      label: '7 MINI CAKES',
+      symbol: '🧁',
+      itemType: 'Mini Cake',
+      list: [
+        { number: 1, label: '1st Mini Cake', name: 'Ninong Dongke' },
+        { number: 2, label: '2nd Mini Cake', name: 'Ninong Tinoy' },
+        { number: 3, label: '3rd Mini Cake', name: 'Ninang Jacky Rodriguez' },
+        { number: 4, label: '4th Mini Cake', name: 'Ninang Sha' },
+        { number: 5, label: '5th Mini Cake', name: 'Ninong Peter' },
+        { number: 6, label: '6th Mini Cake', name: 'Ninong Reschian' },
+        { number: 7, label: '7th Mini Cake', name: 'Ninong Lee' },
       ],
     },
   };
@@ -151,14 +166,14 @@ export const SevenTraditionsSection: React.FC = () => {
             <Sparkles className="h-3.5 w-3.5 text-[#C49A55]" />
           </div>
           <h2 className="font-playfair text-3xl font-bold tracking-wide text-[#6C567B] sm:text-4xl md:text-5xl">
-            The Royal 7 Traditions
+            The Royal Traditions
           </h2>
           <p className="mt-2 font-poppins text-sm sm:text-base text-[#6C567B]/85 font-normal">
             Honored participants for Princess Zia Venice’s 7th Birthday
           </p>
         </div>
 
-        {/* Tab Buttons (7 Categories) */}
+        {/* Tab Buttons (All 8 Categories) */}
         <div className="mb-10 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
           {(Object.keys(traditionsData) as TraditionKey[]).map((tabKey) => {
             const cat = traditionsData[tabKey];
@@ -210,8 +225,8 @@ export const SevenTraditionsSection: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="font-poppins text-sm sm:text-base font-medium text-[#6C567B]/70">
-                    {item.name ? item.name : '—'}
+                  <span className="font-poppins text-sm sm:text-base font-semibold text-[#6C567B]">
+                    {item.name}
                   </span>
                   <Heart className="h-3.5 w-3.5 text-[#9E4D6E]/60 group-hover:text-[#9E4D6E] transition-colors" />
                 </div>

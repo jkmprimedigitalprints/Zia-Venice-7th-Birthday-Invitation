@@ -31,3 +31,18 @@ export interface GuestWish {
   timestamp: string;
   sparkleEmoji?: string;
 }
+
+export type AttendanceStatus = 'attending' | 'declined';
+
+export interface RSVPResponse {
+  id: string;
+  name: string;
+  status: AttendanceStatus;
+  submittedAt: string;
+}
+
+export interface RSVPSummary {
+  total: number;
+  attending: number;
+  declined: number;
+}
