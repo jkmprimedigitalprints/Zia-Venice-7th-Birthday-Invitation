@@ -32,18 +32,31 @@ export interface GuestWishRecord {
 let firestoreDb: ReturnType<typeof getFirestore> | null = null;
 let isFirebaseConfigured = false;
 
+let firebaseConfig: Record<string, string> = {
+  projectId: 'firm-feather-61ttq',
+  appId: '1:5735259225:web:8a8e654819767ec8836548',
+  apiKey: 'AIzaSyDijTXozBmr8VImUb5k7hMQi2FMiUtLTXs',
+  authDomain: 'firm-feather-61ttq.firebaseapp.com',
+  firestoreDatabaseId: 'ai-studio-ziavenice7thbirt-9cc275cb-8d9c-41e6-97a0-e2be5a7d06ac',
+};
+
 try {
   const configPath = path.join(process.cwd(), 'firebase-applet-config.json');
   if (fs.existsSync(configPath)) {
     const rawConfig = fs.readFileSync(configPath, 'utf-8');
-    const firebaseConfig = JSON.parse(rawConfig);
-    if (firebaseConfig.projectId) {
-      const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-      const dbId = firebaseConfig.firestoreDatabaseId || process.env.FIREBASE_DATABASE_ID;
-      firestoreDb = dbId ? getFirestore(app, dbId) : getFirestore(app);
-      isFirebaseConfigured = true;
-      console.log('[DB] Firebase Firestore initialized successfully for project:', firebaseConfig.projectId);
-    }
+    firebaseConfig = JSON.parse(rawConfig);
+  }
+} catch {
+  // Use bundled configuration
+}
+
+try {
+  if (firebaseConfig.projectId) {
+    const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+    const dbId = firebaseConfig.firestoreDatabaseId || process.env.FIREBASE_DATABASE_ID;
+    firestoreDb = dbId ? getFirestore(app, dbId) : getFirestore(app);
+    isFirebaseConfigured = true;
+    console.log('[DB] Firebase Firestore initialized successfully for project:', firebaseConfig.projectId);
   }
 } catch (err) {
   console.warn('[DB] Failed to initialize Firebase Firestore in server layer:', err);

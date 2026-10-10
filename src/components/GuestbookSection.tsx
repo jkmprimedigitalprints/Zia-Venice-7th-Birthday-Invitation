@@ -101,49 +101,10 @@ export const GuestbookSection: React.FC = () => {
       console.warn('[Guestbook] Could not attach Firestore listener:', err);
     }
 
-    // 2. Background live SSE stream
-    let eventSource: EventSource | null = null;
-    try {
-      if (typeof window !== 'undefined' && 'EventSource' in window) {
-        eventSource = new EventSource('/api/messages/events');
-
-        eventSource.onmessage = (event) => {
-          try {
-            const newWish: GuestWish = JSON.parse(event.data);
-            setWishes((prev) => {
-              if (prev.some((w) => w.id === newWish.id)) return prev;
-              const updated = [newWish, ...prev];
-              try {
-                localStorage.setItem('zia_guestbook_wishes', JSON.stringify(updated));
-              } catch {
-                // ignore
-              }
-              return updated;
-            });
-          } catch {
-            // ignore malformed data
-          }
-        };
-
-        eventSource.onerror = () => {
-          // EventSource fallback
-        };
-      }
-    } catch {
-      // ignore
-    }
-
-    // 3. Secondary sync poll every 15 seconds (gentle on network)
-    const pollTimer = setInterval(fetchMessages, 15000);
-
     return () => {
       if (unsubscribeFirestore) {
         unsubscribeFirestore();
       }
-      if (eventSource) {
-        eventSource.close();
-      }
-      clearInterval(pollTimer);
     };
   }, []);
 
