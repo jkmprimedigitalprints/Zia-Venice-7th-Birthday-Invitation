@@ -6,6 +6,7 @@ import {
 import { RSVPResponse, RSVPSummary } from '../types';
 import { db } from '../firebase';
 import { collection, onSnapshot, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import Swal from 'sweetalert2';
 
 interface RSVPTrackingDashboardProps {
   onBackToInvitation: () => void;
@@ -142,14 +143,59 @@ export const RSVPTrackingDashboard: React.FC<RSVPTrackingDashboardProps> = ({ on
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to remove RSVP for "${name}"?`)) return;
+    const result = await Swal.fire({
+      title: 'Remove Guest RSVP?',
+      html: `Are you sure you want to remove the RSVP entry for <span style="font-weight: 600; color: #9E4D6E;">"${name}"</span>?`,
+      icon: 'warning',
+      iconColor: '#E76F51',
+      showCancelButton: true,
+      confirmButtonColor: '#9E4D6E',
+      cancelButtonColor: '#6C567B',
+      confirmButtonText: 'Yes, delete',
+      cancelButtonText: 'Cancel',
+      background: '#FFF9F3',
+      color: '#6C567B',
+      reverseButtons: true,
+      customClass: {
+        popup: 'rounded-3xl border border-[#F8DDE8] shadow-2xl font-poppins',
+        confirmButton: 'rounded-2xl font-medium px-5 py-2.5 text-xs sm:text-sm',
+        cancelButton: 'rounded-2xl font-medium px-5 py-2.5 text-xs sm:text-sm',
+      },
+    });
+
+    if (!result.isConfirmed) return;
+
     setDeletingId(id);
 
     try {
       await deleteDoc(doc(db, 'rsvps', id));
+      await Swal.fire({
+        title: 'Deleted!',
+        text: `RSVP for "${name}" has been removed.`,
+        icon: 'success',
+        iconColor: '#10B981',
+        timer: 1800,
+        showConfirmButton: false,
+        background: '#FFF9F3',
+        color: '#6C567B',
+        customClass: {
+          popup: 'rounded-3xl border border-[#F8DDE8] shadow-2xl font-poppins',
+        },
+      });
     } catch (err) {
       console.error('Delete error:', err);
-      alert('Could not remove entry. Please try again.');
+      Swal.fire({
+        title: 'Failed',
+        text: 'Could not remove entry from Firestore. Please try again.',
+        icon: 'error',
+        confirmButtonColor: '#9E4D6E',
+        background: '#FFF9F3',
+        color: '#6C567B',
+        customClass: {
+          popup: 'rounded-3xl border border-[#F8DDE8] shadow-2xl font-poppins',
+          confirmButton: 'rounded-2xl font-medium px-5 py-2.5 text-xs sm:text-sm',
+        },
+      });
     } finally {
       setDeletingId(null);
     }
