@@ -28,130 +28,138 @@ interface TraditionCategory {
 export const SevenTraditionsSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TraditionKey>('roses');
 
-  const traditionsData: Record<TraditionKey, TraditionCategory> = {
-    roses: {
-      id: 'roses',
-      label: '7 ROSES',
-      symbol: '🌹',
-      itemType: 'Rose',
-      list: [
-        { number: 1, label: '1st Rose', name: 'Lolo Melencio' },
-        { number: 2, label: '2nd Rose', name: 'Papa Nog' },
-        { number: 3, label: '3rd Rose', name: 'Tito Emmel' },
-        { number: 4, label: '4th Rose', name: 'Tito Bernard' },
-        { number: 5, label: '5th Rose', name: 'Kuya MC' },
-        { number: 6, label: '6th Rose', name: 'Kuya Sky' },
-        { number: 7, label: '7th Rose', name: 'Daddy Jun' },
-      ],
-    },
-    wishes: {
-      id: 'wishes',
-      label: '7 WISHES',
-      symbol: '🪄',
-      itemType: 'Wish',
-      list: [
-        { number: 1, label: '1st Wish', name: 'Mama Endang' },
-        { number: 2, label: '2nd Wish', name: 'Tita Liit' },
-        { number: 3, label: '3rd Wish', name: 'Tita Melody' },
-        { number: 4, label: '4th Wish', name: 'Tita Sarah' },
-        { number: 5, label: '5th Wish', name: 'Lola Lengget' },
-        { number: 6, label: '6th Wish', name: 'Lola Lolita' },
-        { number: 7, label: '7th Wish', name: 'Nanay Santa' },
-      ],
-    },
-    makeups: {
-      id: 'makeups',
-      label: '7 MAKE UP',
-      symbol: '💄',
-      itemType: 'Make Up',
-      list: [
-        { number: 1, label: '1st Make Up', name: 'Ate Princess' },
-        { number: 2, label: '2nd Make Up', name: 'Ate Chloe' },
-        { number: 3, label: '3rd Make Up', name: 'Yannah' },
-        { number: 4, label: '4th Make Up', name: 'Ate Kia' },
-        { number: 5, label: '5th Make Up', name: 'Ate Che' },
-        { number: 6, label: '6th Make Up', name: 'Ate Chiel' },
-        { number: 7, label: '7th Make Up', name: 'Ate Jannah' },
-      ],
-    },
-    chocolates: {
-      id: 'chocolates',
-      label: '7 CHOCOLATES',
-      symbol: '🍫',
-      itemType: 'Chocolate',
-      list: [
-        { number: 1, label: '1st Chocolate', name: 'Kuya Abiezer' },
-        { number: 2, label: '2nd Chocolate', name: 'Kuya Craig' },
-        { number: 3, label: '3rd Chocolate', name: 'Hezekiah' },
-        { number: 4, label: '4th Chocolate', name: 'Ate Kaykay' },
-        { number: 5, label: '5th Chocolate', name: 'Kuya Jayrell' },
-        { number: 6, label: '6th Chocolate', name: 'Ate Zhyrish' },
-        { number: 7, label: '7th Chocolate', name: 'Ate Tirzah' },
-      ],
-    },
-    blueBills: {
-      id: 'blueBills',
-      label: '7 BLUE BILLS',
-      symbol: '💵',
-      itemType: 'Blue Bill',
-      list: [
-        { number: 1, label: '1st Blue Bill', name: 'Ninong Jed' },
-        { number: 2, label: '2nd Blue Bill', name: 'Ninong Mher' },
-        { number: 3, label: '3rd Blue Bill', name: 'Ninong Sherman' },
-        { number: 4, label: '4th Blue Bill', name: 'Ninong Aike' },
-        { number: 5, label: '5th Blue Bill', name: 'Ninong Uya' },
-        { number: 6, label: '6th Blue Bill', name: 'Ninong Paul' },
-        { number: 7, label: '7th Blue Bill', name: 'Ninong Richard' },
-      ],
-    },
-    candles: {
-      id: 'candles',
-      label: '7 CANDLES',
-      symbol: '🕯️',
-      itemType: 'Candle',
-      list: [
-        { number: 1, label: '1st Candle', name: 'Ninang Melannie' },
-        { number: 2, label: '2nd Candle', name: 'Ninang Regine' },
-        { number: 3, label: '3rd Candle', name: 'Ninang Camille' },
-        { number: 4, label: '4th Candle', name: 'Ninang Sabel' },
-        { number: 5, label: '5th Candle', name: 'Ninang Marlyn' },
-        { number: 6, label: '6th Candle', name: 'Ninang Rona' },
-        { number: 7, label: '7th Candle', name: 'Tita Ninang Mae' },
-      ],
-    },
-    gifts: {
-      id: 'gifts',
-      label: '7 GIFTS',
-      symbol: '🎁',
-      itemType: 'Gift',
-      list: [
-        { number: 1, label: '1st Gift', name: 'Ninang Jacqueline Oraya' },
-        { number: 2, label: '2nd Gift', name: 'Ninang Mhira' },
-        { number: 3, label: '3rd Gift', name: 'Ninong Angelo' },
-        { number: 4, label: '4th Gift', name: 'Ninang Janette' },
-        { number: 5, label: '5th Gift', name: 'Tita Ganda' },
-        { number: 6, label: '6th Gift', name: 'Tito Harley' },
-        { number: 7, label: '7th Gift', name: 'Tito Kenneth' },
-      ],
-    },
-    miniCakes: {
-      id: 'miniCakes',
-      label: '7 MINI CAKES',
-      symbol: '🧁',
-      itemType: 'Mini Cake',
-      list: [
-        { number: 1, label: '1st Mini Cake', name: 'Ninong Dongke' },
-        { number: 2, label: '2nd Mini Cake', name: 'Ninong Tinoy' },
-        { number: 3, label: '3rd Mini Cake', name: 'Ninang Jacky Rodriguez' },
-        { number: 4, label: '4th Mini Cake', name: 'Ninang Sha' },
-        { number: 5, label: '5th Mini Cake', name: 'Ninong Peter' },
-        { number: 6, label: '6th Mini Cake', name: 'Ninong Reschian' },
-        { number: 7, label: '7th Mini Cake', name: 'Ninong Lee' },
-      ],
-    },
-  };
+const traditionsData: Record<TraditionKey, TraditionCategory> = {
+  gifts: {
+    id: 'gifts',
+    label: '7 GIFTS',
+    symbol: '🎁',
+    itemType: 'Gift',
+    list: [
+      { number: 1, label: '1st Gift', name: 'Ninang Jacqueline Oraya' },
+      { number: 2, label: '2nd Gift', name: 'Ninang Mhira' },
+      { number: 3, label: '3rd Gift', name: 'Ninong Angelo' },
+      { number: 4, label: '4th Gift', name: 'Ninang Janette' },
+      { number: 5, label: '5th Gift', name: 'Tita Ganda' },
+      { number: 6, label: '6th Gift', name: 'Tito Harley' },
+      { number: 7, label: '7th Gift', name: 'Tito Kenneth' },
+    ],
+  },
 
-  const currentCategory = traditionsData[activeTab];
+  chocolates: {
+    id: 'chocolates',
+    label: '7 CHOCOLATES',
+    symbol: '🍫',
+    itemType: 'Chocolate',
+    list: [
+      { number: 1, label: '1st Chocolate', name: 'Kuya Abiezer' },
+      { number: 2, label: '2nd Chocolate', name: 'Kuya Craig' },
+      { number: 3, label: '3rd Chocolate', name: 'Hezekiah' },
+      { number: 4, label: '4th Chocolate', name: 'Ate Kaykay' },
+      { number: 5, label: '5th Chocolate', name: 'Kuya Jayrell' },
+      { number: 6, label: '6th Chocolate', name: 'Ate Zhyrish' },
+      { number: 7, label: '7th Chocolate', name: 'Ate Tirzah' },
+    ],
+  },
+
+  makeups: {
+    id: 'makeups',
+    label: '7 MAKE UP',
+    symbol: '💄',
+    itemType: 'Make Up',
+    list: [
+      { number: 1, label: '1st Make Up', name: 'Ate Princess' },
+      { number: 2, label: '2nd Make Up', name: 'Ate Chloe' },
+      { number: 3, label: '3rd Make Up', name: 'Yannah' },
+      { number: 4, label: '4th Make Up', name: 'Ate Kia' },
+      { number: 5, label: '5th Make Up', name: 'Ate Che' },
+      { number: 6, label: '6th Make Up', name: 'Ate Chiel' },
+      { number: 7, label: '7th Make Up', name: 'Ate Jannah' },
+    ],
+  },
+
+  blueBills: {
+    id: 'blueBills',
+    label: '7 BLUE BILLS',
+    symbol: '💵',
+    itemType: 'Blue Bill',
+    list: [
+      { number: 1, label: '1st Blue Bill', name: 'Ninong Jed' },
+      { number: 2, label: '2nd Blue Bill', name: 'Ninong Mher' },
+      { number: 3, label: '3rd Blue Bill', name: 'Ninong Sherman' },
+      { number: 4, label: '4th Blue Bill', name: 'Ninong Aike' },
+      { number: 5, label: '5th Blue Bill', name: 'Ninong Uya' },
+      { number: 6, label: '6th Blue Bill', name: 'Ninong Paul' },
+      { number: 7, label: '7th Blue Bill', name: 'Ninong Richard' },
+    ],
+  },
+
+  miniCakes: {
+    id: 'miniCakes',
+    label: '7 MINI CAKES',
+    symbol: '🧁',
+    itemType: 'Mini Cake',
+    list: [
+      { number: 1, label: '1st Mini Cake', name: 'Ninong Dongke' },
+      { number: 2, label: '2nd Mini Cake', name: 'Ninong Tinoy' },
+      { number: 3, label: '3rd Mini Cake', name: 'Ninang Jacky Rodriguez' },
+      { number: 4, label: '4th Mini Cake', name: 'Ninang Sha' },
+      { number: 5, label: '5th Mini Cake', name: 'Ninong Peter' },
+      { number: 6, label: '6th Mini Cake', name: 'Ninong Reschian' },
+      { number: 7, label: '7th Mini Cake', name: 'Ninong Lee' },
+    ],
+  },
+
+  wishes: {
+    id: 'wishes',
+    label: '7 WISHES',
+    symbol: '🪄',
+    itemType: 'Wish',
+    list: [
+      { number: 1, label: '1st Wish', name: 'Mama Endang' },
+      { number: 2, label: '2nd Wish', name: 'Tita Liit' },
+      { number: 3, label: '3rd Wish', name: 'Tita Melody' },
+      { number: 4, label: '4th Wish', name: 'Tita Sarah' },
+      { number: 5, label: '5th Wish', name: 'Lola Lengget' },
+      { number: 6, label: '6th Wish', name: 'Lola Lolita' },
+      { number: 7, label: '7th Wish', name: 'Nanay Santa' },
+    ],
+  },
+
+  candles: {
+    id: 'candles',
+    label: '7 CANDLES',
+    symbol: '🕯️',
+    itemType: 'Candle',
+    list: [
+      { number: 1, label: '1st Candle', name: 'Ninang Melannie' },
+      { number: 2, label: '2nd Candle', name: 'Ninang Regine' },
+      { number: 3, label: '3rd Candle', name: 'Ninang Camille' },
+      { number: 4, label: '4th Candle', name: 'Ninang Sabel' },
+      { number: 5, label: '5th Candle', name: 'Ninang Marlyn' },
+      { number: 6, label: '6th Candle', name: 'Ninang Rona' },
+      { number: 7, label: '7th Candle', name: 'Tita Ninang Mae' },
+    ],
+  },
+
+  roses: {
+    id: 'roses',
+    label: '7 ROSES',
+    symbol: '🌹',
+    itemType: 'Rose',
+    list: [
+      { number: 1, label: '1st Rose', name: 'Lolo Melencio' },
+      { number: 2, label: '2nd Rose', name: 'Papa Nog' },
+      { number: 3, label: '3rd Rose', name: 'Tito Emmel' },
+      { number: 4, label: '4th Rose', name: 'Tito Bernard' },
+      { number: 5, label: '5th Rose', name: 'Kuya MC' },
+      { number: 6, label: '6th Rose', name: 'Kuya Sky' },
+      { number: 7, label: '7th Rose', name: 'Daddy Jun' },
+    ],
+  },
+};
+
+const currentCategory = traditionsData[activeTab];
+
 
   return (
     <section id="traditions" className="relative py-20 px-4 sm:px-6 overflow-hidden bg-gradient-to-b from-[#E9DDF7]/30 via-[#F8DDE8]/30 to-[#FFF9F3]">
