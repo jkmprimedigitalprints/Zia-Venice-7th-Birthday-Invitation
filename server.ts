@@ -167,7 +167,9 @@ const ADMIN_PASS = 'Zia@07';
 function verifyAdmin(req: Request): boolean {
   const user = req.headers['x-admin-username'];
   const pass = req.headers['x-admin-password'];
-  return user === ADMIN_USER && pass === ADMIN_PASS;
+  const isUser = typeof user === 'string' && (user.trim() === ADMIN_USER || user.trim().toLowerCase() === ADMIN_USER.toLowerCase());
+  const isPass = pass === ADMIN_PASS;
+  return Boolean(isUser && isPass);
 }
 
 // RSVP Public Endpoints
@@ -227,7 +229,11 @@ app.post('/api/rsvp', (req: Request, res: Response) => {
 // RSVP Admin Auth Verification
 app.post('/api/rsvp/auth', (req: Request, res: Response) => {
   const { username, password } = req.body;
-  if (username === ADMIN_USER && password === ADMIN_PASS) {
+  const isUser =
+    typeof username === 'string' &&
+    (username.trim() === ADMIN_USER || username.trim().toLowerCase() === ADMIN_USER.toLowerCase());
+  const isPass = typeof password === 'string' && password.trim() === ADMIN_PASS;
+  if (isUser && isPass) {
     res.json({ success: true });
   } else {
     res.status(401).json({ error: 'Invalid credentials' });
@@ -252,12 +258,16 @@ app.get('/api/rsvp/admin', (req: Request, res: Response) => {
 });
 
 // RSVP Admin Delete Entry (Protected)
-app.delete('/api/rsvp/admin/:id', (req: Request, res: Response) => {
+app.delete('/api/rsvp/admin/:id?', (req: Request, res: Response) => {
   if (!verifyAdmin(req)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const { id } = req.params;
+  const id = req.params.id || (req.query.id as string);
+  if (!id) {
+    return res.status(400).json({ error: 'ID is required' });
+  }
+
   const rsvps = loadRSVPs();
   const updated = rsvps.filter((r) => r.id !== id);
   saveRSVPs(updated);

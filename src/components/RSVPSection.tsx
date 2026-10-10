@@ -34,6 +34,27 @@ export const RSVPSection: React.FC = () => {
     setIsSubmitting(true);
 
     const guestName = name.trim();
+    const newRecord = {
+      id: `rsvp-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      name: guestName,
+      status,
+      submittedAt: new Date().toISOString(),
+    };
+
+    // Cache to local storage immediately so it is available locally
+    try {
+      const stored = localStorage.getItem('zia_all_rsvps') || '[]';
+      const parsed = JSON.parse(stored);
+      const filtered = Array.isArray(parsed)
+        ? parsed.filter((r: { name?: string }) => r.name?.toLowerCase() !== guestName.toLowerCase())
+        : [];
+      filtered.unshift(newRecord);
+      localStorage.setItem('zia_all_rsvps', JSON.stringify(filtered));
+      localStorage.setItem('zia_rsvp_submitted_name', guestName);
+      localStorage.setItem('zia_rsvp_submitted_status', status);
+    } catch {
+      // ignore
+    }
 
     try {
       const res = await fetch('/api/rsvp', {
@@ -43,35 +64,26 @@ export const RSVPSection: React.FC = () => {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to submit RSVP');
+        throw new Error('Failed to submit RSVP to server');
       }
 
       setSubmittedName(guestName);
       setSubmittedStatus(status);
-      try {
-        localStorage.setItem('zia_rsvp_submitted_name', guestName);
-        localStorage.setItem('zia_rsvp_submitted_status', status);
-      } catch {
-        // ignore
-      }
     } catch {
-      // Local fallback in case network issue occurs
+      // Local fallback in case network issue occurs or on static hosting
       try {
         const stored = localStorage.getItem('zia_guest_rsvp_offline') || '[]';
         const parsed = JSON.parse(stored);
-        parsed.unshift({ name: guestName, status, submittedAt: new Date().toISOString() });
-        localStorage.setItem('zia_guest_rsvp_offline', JSON.stringify(parsed));
+        const filtered = Array.isArray(parsed)
+          ? parsed.filter((r: { name?: string }) => r.name?.toLowerCase() !== guestName.toLowerCase())
+          : [];
+        filtered.unshift(newRecord);
+        localStorage.setItem('zia_guest_rsvp_offline', JSON.stringify(filtered));
       } catch {
         // ignore
       }
       setSubmittedName(guestName);
       setSubmittedStatus(status);
-      try {
-        localStorage.setItem('zia_rsvp_submitted_name', guestName);
-        localStorage.setItem('zia_rsvp_submitted_status', status);
-      } catch {
-        // ignore
-      }
     } finally {
       setIsSubmitting(false);
     }

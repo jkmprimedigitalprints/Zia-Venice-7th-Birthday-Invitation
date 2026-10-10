@@ -1,6 +1,22 @@
 {
   "rewrites": [
     {
+      "source": "/api/rsvp/auth",
+      "destination": "/api/rsvp-auth"
+    },
+    {
+      "source": "/api/rsvp/admin/:id",
+      "destination": "/api/rsvp-admin?id=:id"
+    },
+    {
+      "source": "/api/rsvp/admin",
+      "destination": "/api/rsvp-admin"
+    },
+    {
+      "source": "/api/rsvp",
+      "destination": "/api/rsvp"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },

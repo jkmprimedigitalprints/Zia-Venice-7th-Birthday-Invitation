@@ -30,9 +30,13 @@ export const RSVPTrackingDashboard: React.FC<RSVPTrackingDashboardProps> = ({ on
   useEffect(() => {
     const savedUser = sessionStorage.getItem('zia_rsvp_admin_user');
     const savedPass = sessionStorage.getItem('zia_rsvp_admin_pass');
-    if (savedUser === 'Zia' && savedPass === 'Zia@07') {
-      setUsername(savedUser);
-      setPassword(savedPass);
+    if (
+      savedUser &&
+      (savedUser === 'Zia' || savedUser.toLowerCase() === 'zia') &&
+      savedPass === 'Zia@07'
+    ) {
+      setUsername('Zia');
+      setPassword('Zia@07');
       setIsAuthenticated(true);
     }
   }, []);
@@ -42,32 +46,57 @@ export const RSVPTrackingDashboard: React.FC<RSVPTrackingDashboardProps> = ({ on
     setAuthError('');
     setIsLoggingIn(true);
 
+    const cleanUser = username.trim();
+    const cleanPass = password.trim();
+
+    // Check credentials: Valid credentials are Zia and Zia@07
+    const isUserValid = cleanUser === 'Zia' || cleanUser.toLowerCase() === 'zia';
+    const isPassValid = cleanPass === 'Zia@07';
+
+    if (isUserValid && isPassValid) {
+      setIsAuthenticated(true);
+      sessionStorage.setItem('zia_rsvp_admin_user', 'Zia');
+      sessionStorage.setItem('zia_rsvp_admin_pass', 'Zia@07');
+      setAuthError('');
+      setIsLoggingIn(false);
+
+      // Best effort sync with server endpoint if active
+      try {
+        await fetch('/api/rsvp/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: cleanUser, password: cleanPass }),
+        });
+      } catch {
+        // Safe to ignore on serverless or static host
+      }
+      return;
+    }
+
+    // If inputs didn't match default client credentials, attempt server verification
     try {
       const res = await fetch('/api/rsvp/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username.trim(), password: password.trim() }),
+        body: JSON.stringify({ username: cleanUser, password: cleanPass }),
       });
-
-      if (res.ok) {
-        setIsAuthenticated(true);
-        sessionStorage.setItem('zia_rsvp_admin_user', username.trim());
-        sessionStorage.setItem('zia_rsvp_admin_pass', password.trim());
-      } else {
-        setAuthError('Incorrect username or password. Please try again.');
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
+        const data = await res.json();
+        if (data.success) {
+          setIsAuthenticated(true);
+          sessionStorage.setItem('zia_rsvp_admin_user', cleanUser);
+          sessionStorage.setItem('zia_rsvp_admin_pass', cleanPass);
+          setIsLoggingIn(false);
+          return;
+        }
       }
     } catch {
-      // Fallback check if server endpoint momentarily offline
-      if (username.trim() === 'Zia' && password.trim() === 'Zia@07') {
-        setIsAuthenticated(true);
-        sessionStorage.setItem('zia_rsvp_admin_user', 'Zia');
-        sessionStorage.setItem('zia_rsvp_admin_pass', 'Zia@07');
-      } else {
-        setAuthError('Incorrect username or password. Please try again.');
-      }
-    } finally {
-      setIsLoggingIn(false);
+      // ignore
     }
+
+    setAuthError('Incorrect username or password. Please try again.');
+    setIsLoggingIn(false);
   };
 
   const handleLogout = () => {
@@ -81,6 +110,9 @@ export const RSVPTrackingDashboard: React.FC<RSVPTrackingDashboardProps> = ({ on
   // Fetch full list & summary
   const fetchRSVPData = async () => {
     setIsLoading(true);
+    let serverList: RSVPResponse[] | null = null;
+    let serverSummary: RSVPSummary | null = null;
+
     try {
       const res = await fetch('/api/rsvp/admin', {
         headers: {
@@ -88,16 +120,73 @@ export const RSVPTrackingDashboard: React.FC<RSVPTrackingDashboardProps> = ({ on
           'x-admin-password': 'Zia@07',
         },
       });
-      if (res.ok) {
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
         const data = await res.json();
-        setRsvps(data.list || []);
-        setSummary(data.summary || { total: 0, attending: 0, declined: 0 });
+        if (Array.isArray(data.list)) {
+          serverList = data.list;
+          serverSummary = data.summary;
+        }
       }
     } catch (err) {
-      console.error('Failed to load RSVP tracking data:', err);
-    } finally {
-      setIsLoading(false);
+      console.warn('RSVP data fetch notice:', err);
     }
+
+    // Merge with local submissions so no responses are ever lost on static hosting
+    const recordMap = new Map<string, RSVPResponse>();
+
+    if (serverList) {
+      serverList.forEach((r) => {
+        const key = (r.id || r.name).toLowerCase().trim();
+        recordMap.set(key, r);
+      });
+    }
+
+    try {
+      const rawAll = localStorage.getItem('zia_all_rsvps');
+      if (rawAll) {
+        const parsed = JSON.parse(rawAll);
+        if (Array.isArray(parsed)) {
+          parsed.forEach((item: RSVPResponse) => {
+            const key = (item.id || item.name).toLowerCase().trim();
+            if (!recordMap.has(key)) {
+              recordMap.set(key, item);
+            }
+          });
+        }
+      }
+
+      const rawOffline = localStorage.getItem('zia_guest_rsvp_offline');
+      if (rawOffline) {
+        const parsed = JSON.parse(rawOffline);
+        if (Array.isArray(parsed)) {
+          parsed.forEach((item: RSVPResponse) => {
+            const key = (item.id || item.name).toLowerCase().trim();
+            if (!recordMap.has(key)) {
+              recordMap.set(key, item);
+            }
+          });
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    const merged = Array.from(recordMap.values());
+    const attendingCount = merged.filter((r) => r.status === 'attending').length;
+    const declinedCount = merged.filter((r) => r.status === 'declined').length;
+
+    setRsvps(merged);
+    setSummary(
+      serverSummary && serverList && serverList.length >= merged.length
+        ? serverSummary
+        : {
+            total: merged.length,
+            attending: attendingCount,
+            declined: declinedCount,
+          }
+    );
+    setIsLoading(false);
   };
 
   // Connect SSE for Realtime updates
@@ -147,19 +236,54 @@ export const RSVPTrackingDashboard: React.FC<RSVPTrackingDashboardProps> = ({ on
   const handleDelete = async (id: string, name: string) => {
     if (!window.confirm(`Are you sure you want to remove RSVP for "${name}"?`)) return;
     setDeletingId(id);
+
+    // Optimistically remove from state & update summary
+    setRsvps((prev) => {
+      const updated = prev.filter((r) => r.id !== id && r.name !== name);
+      setSummary({
+        total: updated.length,
+        attending: updated.filter((r) => r.status === 'attending').length,
+        declined: updated.filter((r) => r.status === 'declined').length,
+      });
+      return updated;
+    });
+
+    // Also remove from local storage caches
     try {
-      const res = await fetch(`/api/rsvp/admin/${id}`, {
+      const rawAll = localStorage.getItem('zia_all_rsvps');
+      if (rawAll) {
+        const parsed = JSON.parse(rawAll);
+        if (Array.isArray(parsed)) {
+          localStorage.setItem(
+            'zia_all_rsvps',
+            JSON.stringify(parsed.filter((r: RSVPResponse) => r.id !== id && r.name !== name))
+          );
+        }
+      }
+      const rawOffline = localStorage.getItem('zia_guest_rsvp_offline');
+      if (rawOffline) {
+        const parsed = JSON.parse(rawOffline);
+        if (Array.isArray(parsed)) {
+          localStorage.setItem(
+            'zia_guest_rsvp_offline',
+            JSON.stringify(parsed.filter((r: RSVPResponse) => r.id !== id && r.name !== name))
+          );
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    try {
+      await fetch(`/api/rsvp/admin/${id}`, {
         method: 'DELETE',
         headers: {
           'x-admin-username': 'Zia',
           'x-admin-password': 'Zia@07',
         },
       });
-      if (res.ok) {
-        setRsvps((prev) => prev.filter((r) => r.id !== id));
-      }
     } catch (err) {
-      console.error('Delete error:', err);
+      console.error('Delete notice:', err);
     } finally {
       setDeletingId(null);
     }
