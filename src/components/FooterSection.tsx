@@ -88,6 +88,16 @@ export const FooterSection: React.FC = () => {
             <span className="hidden sm:inline">·</span>
             <span>November 14, 2026</span>
           </div>
+
+          {/* Discreet Organizer RSVP Portal Link */}
+          <div className="mt-3 text-center">
+            <a
+              href="/#rsvp-admin"
+              className="inline-flex items-center gap-1.5 text-[11px] text-[#6C567B]/40 hover:text-[#9E4D6E] transition-colors"
+            >
+              <span>Organizers RSVP Portal</span>
+            </a>
+          </div>
         </div>
       </div>
     </footer>

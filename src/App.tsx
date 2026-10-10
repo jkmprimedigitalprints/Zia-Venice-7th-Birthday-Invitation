@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ParticleCanvas } from './components/ParticleCanvas';
 import { StorybookIntro } from './components/StorybookIntro';
 import { Navbar } from './components/Navbar';
@@ -10,6 +10,8 @@ import { CountdownSection } from './components/CountdownSection';
 import { DetailsSection } from './components/DetailsSection';
 import { GallerySection } from './components/GallerySection';
 import { GuestbookSection } from './components/GuestbookSection';
+import { RSVPSection } from './components/RSVPSection';
+import { RSVPTrackingDashboard } from './components/RSVPTrackingDashboard';
 import { MusicPlayer } from './components/MusicPlayer';
 import { FooterSection } from './components/FooterSection';
 import { fairytaleAudio } from './utils/audioSynth';
@@ -18,9 +20,28 @@ import { EVENT_DATA } from './data/eventData';
 export default function App() {
   const [showIntro, setShowIntro] = useState(true);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [isTrackingView, setIsTrackingView] = useState(false);
+
+  // Monitor location hash to toggle between Invitation and RSVP Tracking Dashboard
+  // Supports /#rsvp, #rsvp-admin, #tracking
+  useEffect(() => {
+    const handleHashCheck = () => {
+      const hash = window.location.hash.toLowerCase();
+      // If user specifically navigates to #rsvp-admin or url contains /#rsvp tracking intent
+      if (hash === '#rsvp-admin' || hash === '#tracking') {
+        setIsTrackingView(true);
+      } else {
+        setIsTrackingView(false);
+      }
+    };
+
+    handleHashCheck();
+    window.addEventListener('hashchange', handleHashCheck);
+    return () => window.removeEventListener('hashchange', handleHashCheck);
+  }, []);
 
   // Sync state with audio element events
-  React.useEffect(() => {
+  useEffect(() => {
     const unsubscribe = fairytaleAudio.subscribe((playing) => {
       setIsMusicPlaying(playing);
     });
@@ -45,6 +66,18 @@ export default function App() {
   const handleMusicToggle = () => {
     fairytaleAudio.toggle();
   };
+
+  const handleBackToInvitation = () => {
+    window.location.hash = '';
+    setIsTrackingView(false);
+  };
+
+  // If in Protected Real-time RSVP Tracking view
+  if (isTrackingView) {
+    return (
+      <RSVPTrackingDashboard onBackToInvitation={handleBackToInvitation} />
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-[#FFF9F3] text-[#6C567B] font-poppins overflow-x-hidden selection:bg-[#F8DDE8] selection:text-[#6C567B]">
@@ -90,6 +123,9 @@ export default function App() {
 
         {/* 8. Real-Time Fairytale Messages: Wishes for Princess Zia */}
         <GuestbookSection />
+
+        {/* 9. Real-Time RSVP Section with slot reservation disclaimer */}
+        <RSVPSection />
       </main>
 
       {/* Fixed Floating Music Player with 🎵 */}
@@ -98,8 +134,9 @@ export default function App() {
         onToggle={handleMusicToggle}
       />
 
-      {/* Footer: Happily Ever After Begins */}
+      {/* Footer: Happily Ever After Begins & Organizer Portal Link */}
       <FooterSection />
     </div>
   );
 }
+

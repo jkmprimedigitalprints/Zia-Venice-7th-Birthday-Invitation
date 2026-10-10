@@ -1,274 +1,48 @@
-@import "tailwindcss";
-
-@theme {
-  --font-greatvibes: 'Great Vibes', cursive;
-  --font-sacramento: 'Sacramento', cursive;
-  --font-playfair: 'Playfair Display', serif;
-  --font-poppins: 'Poppins', sans-serif;
-
-  /* Backward compatibility aliases */
-  --font-script: 'Great Vibes', cursive;
-  --font-cinzel: 'Playfair Display', serif;
-  --font-cormorant: 'Playfair Display', serif;
-  --font-sans: 'Poppins', sans-serif;
-  --font-sans-clean: 'Poppins', sans-serif;
-
-  /* Standard Fairytale Palette Tokens */
-  --color-fairytale-pink: #F8DDE8;
-  --color-fairytale-lavender: #E9DDF7;
-  --color-fairytale-gold: #C49A55;
-  --color-fairytale-ivory: #FFF9F3;
-  --color-fairytale-plum: #543B59;
-
-  /* Exclusive User-Requested Font Colors: Soft Powder Blue, Pale Lavender, Blush Pink */
-  --color-powder-blue: #4A7B9D;
-  --color-pale-lavender: #6C567B;
-  --color-blush-pink: #9E4D6E;
+export interface EventDetails {
+  celebrantName: string;
+  age: number;
+  tagline: string;
+  celebrationTitle: string;
+  subtitle: string;
+  eventDate: string; // ISO string: 2026-11-14T14:00:00
+  displayDate: string;
+  displayTime: string;
+  venueName: string;
+  dressCode: {
+    title: string;
+    description: string;
+    colors: { name: string; hex: string; border?: string }[];
+  };
 }
 
-@layer utilities {
-  .font-greatvibes {
-    font-family: 'Great Vibes', cursive;
-  }
-  .font-sacramento {
-    font-family: 'Sacramento', cursive;
-  }
-  .font-playfair {
-    font-family: 'Playfair Display', serif;
-  }
-  .font-poppins {
-    font-family: 'Poppins', sans-serif;
-  }
-
-  /* All cursive elements strictly map to Sacramento Font */
-  .font-cursive,
-  .font-script {
-    font-family: 'Sacramento', cursive;
-  }
-  .font-cinzel {
-    font-family: 'Playfair Display', serif;
-  }
-  .font-cormorant {
-    font-family: 'Playfair Display', serif;
-  }
-  .font-sans-clean {
-    font-family: 'Poppins', sans-serif;
-  }
-
-  /* User-Specified Font Color Classes */
-  .text-powder-blue {
-    color: #4A7B9D;
-  }
-  .text-pale-lavender {
-    color: #6C567B;
-  }
-  .text-blush-pink {
-    color: #9E4D6E;
-  }
-
-  /* Color utilities */
-  .bg-fairytale-ivory {
-    background-color: #FFF9F3;
-  }
-  .bg-fairytale-pink {
-    background-color: #F8DDE8;
-  }
-  .bg-fairytale-lavender {
-    background-color: #E9DDF7;
-  }
-  .text-fairytale-plum {
-    color: #6C567B;
-  }
-  .text-fairytale-gold {
-    color: #9E4D6E;
-  }
-  .border-fairytale-gold {
-    border-color: #C49A55;
-  }
+export interface CelebrantPhoto {
+  id: string;
+  slotNumber: number;
+  label: string; // "Zia Venice Photo 1"
+  src: string;
+  alt: string;
 }
 
-/* Dreamy Fairytale Glows and Keyframes */
-@keyframes twinkle {
-  0%, 100% { opacity: 0.25; transform: scale(0.85); }
-  50% { opacity: 1; transform: scale(1.15); }
+export interface GuestWish {
+  id: string;
+  author: string;
+  relation: string;
+  message: string;
+  timestamp: string;
+  sparkleEmoji?: string;
 }
 
-@keyframes floatGentle {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(2deg); }
+export type AttendanceStatus = 'attending' | 'declined';
+
+export interface RSVPResponse {
+  id: string;
+  name: string;
+  status: AttendanceStatus;
+  submittedAt: string;
 }
 
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 25px rgba(248, 221, 232, 0.4), 0 0 50px rgba(233, 221, 247, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(248, 221, 232, 0.7), 0 0 80px rgba(196, 154, 85, 0.4);
-  }
-}
-
-@keyframes fairyDust {
-  0% { transform: translateY(0) scale(0.6); opacity: 0; }
-  30% { opacity: 0.9; }
-  80% { opacity: 0.7; }
-  100% { transform: translateY(-120px) scale(1.2); opacity: 0; }
-}
-
-@keyframes mistDrift {
-  0% { transform: translateX(-5%); opacity: 0.28; }
-  50% { transform: translateX(5%); opacity: 0.45; }
-  100% { transform: translateX(-5%); opacity: 0.28; }
-}
-
-@keyframes shimmerRays {
-  0%, 100% { opacity: 0.18; transform: scale(0.98); }
-  50% { opacity: 0.38; transform: scale(1.03); }
-}
-
-@keyframes castleWindowGlow {
-  0%, 100% { opacity: 0.3; transform: scale(0.9); }
-  50% { opacity: 0.85; transform: scale(1.2); }
-}
-
-.animate-twinkle {
-  animation: twinkle 3.5s ease-in-out infinite;
-}
-
-.animate-float {
-  animation: floatGentle 6s ease-in-out infinite;
-}
-
-.animate-glow {
-  animation: pulseGlow 4s ease-in-out infinite;
-}
-
-.animate-mist {
-  animation: mistDrift 18s ease-in-out infinite;
-}
-
-.animate-rays {
-  animation: shimmerRays 7s ease-in-out infinite;
-}
-
-.animate-window-glow {
-  animation: castleWindowGlow 4s ease-in-out infinite;
-}
-
-/* Mobile & Universal CSS Falling Petals with soft gentle opacity */
-@keyframes petalFallGentle {
-  0% {
-    transform: translateY(-20px) translateX(0) rotate(0deg);
-    opacity: 0;
-  }
-  15% {
-    opacity: 0.65;
-  }
-  85% {
-    opacity: 0.60;
-  }
-  100% {
-    transform: translateY(105vh) translateX(45px) rotate(360deg);
-    opacity: 0;
-  }
-}
-
-/* Mobile & Universal CSS Fluttering Butterflies */
-@keyframes butterflyFlight1 {
-  0% {
-    transform: translate3d(-10vw, 35vh, 0) scale(0.9) rotate(5deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.70;
-  }
-  30% {
-    transform: translate3d(25vw, 25vh, 0) scale(1) rotate(-8deg);
-  }
-  60% {
-    transform: translate3d(65vw, 42vh, 0) scale(0.95) rotate(12deg);
-    opacity: 0.75;
-  }
-  90% {
-    opacity: 0.70;
-  }
-  100% {
-    transform: translate3d(110vw, 20vh, 0) scale(1) rotate(5deg);
-    opacity: 0;
-  }
-}
-
-@keyframes butterflyFlight2 {
-  0% {
-    transform: translate3d(110vw, 60vh, 0) scaleX(-1) scale(0.85) rotate(-5deg);
-    opacity: 0;
-  }
-  15% {
-    opacity: 0.65;
-  }
-  45% {
-    transform: translate3d(70vw, 45vh, 0) scaleX(-1) scale(0.9) rotate(8deg);
-  }
-  75% {
-    transform: translate3d(30vw, 68vh, 0) scaleX(-1) scale(0.85) rotate(-10deg);
-    opacity: 0.65;
-  }
-  95% {
-    opacity: 0.50;
-  }
-  100% {
-    transform: translate3d(-15vw, 50vh, 0) scaleX(-1) scale(0.85) rotate(-5deg);
-    opacity: 0;
-  }
-}
-
-@keyframes wingFlutter {
-  0%, 100% {
-    transform: scaleX(1);
-  }
-  50% {
-    transform: scaleX(0.25);
-  }
-}
-
-.animate-petal-fall {
-  animation: petalFallGentle 14s linear infinite;
-  will-change: transform, opacity;
-}
-
-.animate-butterfly-1 {
-  animation: butterflyFlight1 20s ease-in-out infinite;
-  will-change: transform, opacity;
-}
-
-.animate-butterfly-2 {
-  animation: butterflyFlight2 24s ease-in-out infinite 8s;
-  will-change: transform, opacity;
-}
-
-.animate-wing-flutter {
-  animation: wingFlutter 0.28s ease-in-out infinite;
-  will-change: transform;
-}
-
-/* Hide all scrollbars completely while keeping smooth scrolling functional */
-html, body, * {
-  scrollbar-width: none !important; /* Firefox */
-  -ms-overflow-style: none !important; /* IE and Edge */
-}
-
-::-webkit-scrollbar {
-  display: none !important; /* Chrome, Safari, Opera */
-  width: 0px !important;
-  height: 0px !important;
-  background: transparent !important;
-}
-
-::-webkit-scrollbar-track {
-  display: none !important;
-  background: transparent !important;
-}
-
-::-webkit-scrollbar-thumb {
-  display: none !important;
-  background: transparent !important;
+export interface RSVPSummary {
+  total: number;
+  attending: number;
+  declined: number;
 }
