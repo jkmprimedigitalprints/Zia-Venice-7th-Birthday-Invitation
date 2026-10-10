@@ -85,9 +85,9 @@ export const ParticleCanvas: React.FC = () => {
 
     window.addEventListener('resize', handleResize);
 
-    // Optimized vivid butterfly palette (fairytale pastel rose, sky blue, lavender, gold)
-    const butterflyPalette = ['#e87a90', '#4a90e2', '#a855f7', '#d97706'];
-    let nextButterflySpawnTime = 15; // Start quickly so visible right away!
+    // Soft pastel butterfly palette with gentle opacity
+    const butterflyPalette = ['#e88b9e', '#6ba3e8', '#b57bec', '#e09f3e'];
+    let nextButterflySpawnTime = 15;
     const activeButterflies: Butterfly[] = [];
     const trailSparkles: TrailSparkle[] = [];
 
@@ -101,64 +101,56 @@ export const ParticleCanvas: React.FC = () => {
       const startY = height * (0.15 + Math.random() * 0.65);
       const color = butterflyPalette[Math.floor(Math.random() * butterflyPalette.length)];
 
-      // On mobile, scale butterfly size to 20-24px so it's clearly visible on small mobile screens
-      const bSize = isMobile ? 21 : 18;
+      const bSize = isMobile ? 18 : 16;
 
       activeButterflies.push({
         id: Date.now() + Math.random(),
         x: startX,
         y: startY,
         size: bSize,
-        vx: (flyRight ? 1 : -1) * (isMobile ? 1.1 : 0.95),
-        vy: (Math.random() - 0.5) * 0.35,
+        vx: (flyRight ? 1 : -1) * (isMobile ? 0.95 : 0.85),
+        vy: (Math.random() - 0.5) * 0.3,
         color,
         wingAngle: 0,
-        wingSpeed: 0.2,
+        wingSpeed: 0.18,
         direction: flyRight ? 1 : -1,
-        wobbleSpeed: 0.04,
-        wobbleDist: isMobile ? 1.6 : 1.2,
+        wobbleSpeed: 0.035,
+        wobbleDist: isMobile ? 1.3 : 1.1,
         sparkleTimer: 0,
       });
     };
 
-    // Pre-spawn butterflies immediately so user doesn't have to wait 10-15 seconds
     spawnButterfly();
-    if (!isMobile) {
-      spawnButterfly();
-    }
 
-    // Rich falling rose petals with vibrant fairytale colors and clear outlines
+    // Soft pastel rose petals with reduced, delicate opacity
     const petalColors = [
-      'rgba(235, 94, 138, 0.90)', // Vibrant fairytale rose pink
-      'rgba(244, 114, 160, 0.92)', // Rose blush
-      'rgba(219, 39, 119, 0.88)', // Deep magenta petal
-      'rgba(244, 143, 177, 0.90)', // Soft rose
-      'rgba(192, 132, 252, 0.88)', // Fairytale royal lavender
+      'rgba(244, 143, 177, 0.55)', // Soft rose pink
+      'rgba(248, 185, 205, 0.50)', // Light blush
+      'rgba(235, 115, 155, 0.48)', // Gentle magenta
+      'rgba(209, 178, 245, 0.50)', // Pale lavender
     ];
 
-    // Petal count: 18 on mobile, 24 on desktop so petals are clearly drifting by continuously
-    const petalCount = isMobile ? 18 : 26;
+    const petalCount = isMobile ? 12 : 20;
     const petals: Petal[] = [];
     for (let i = 0; i < petalCount; i++) {
       const px = Math.random() * width;
-      // Slightly larger on mobile for clear visibility on phone screens
-      const pSize = isMobile ? Math.random() * 6 + 10 : Math.random() * 5 + 8;
+      const pSize = isMobile ? Math.random() * 4 + 7 : Math.random() * 4 + 6;
       petals.push({
         x: px,
         initialX: px,
         y: Math.random() * height,
         size: pSize,
-        vy: Math.random() * 0.7 + 0.5,
-        vx: Math.random() * 0.3 + 0.1,
+        vy: Math.random() * 0.55 + 0.35,
+        vx: Math.random() * 0.25 + 0.08,
         angle: Math.random() * Math.PI * 2,
-        angularSpeed: (Math.random() - 0.5) * 0.03,
-        swaySpeed: Math.random() * 0.025 + 0.015,
-        swayDist: Math.random() * (isMobile ? 28 : 22) + 14,
+        angularSpeed: (Math.random() - 0.5) * 0.02,
+        swaySpeed: Math.random() * 0.02 + 0.012,
+        swayDist: Math.random() * (isMobile ? 22 : 18) + 10,
         color: petalColors[i % petalColors.length],
       });
     }
 
-    // Sparkling stars & fairy dust
+    // Sparkling stars & fairy dust with gentle soft opacity
     const colorDefinitions = {
       gold: 'rgba(235, 190, 85, ',
       white: 'rgba(255, 255, 255, ',
@@ -172,22 +164,22 @@ export const ParticleCanvas: React.FC = () => {
       'lavender',
     ];
 
-    const sparkleCount = isMobile ? 22 : 32;
+    const sparkleCount = isMobile ? 16 : 24;
     const sparkles: StarSparkle[] = [];
     for (let i = 0; i < sparkleCount; i++) {
       const cType = colorTypes[i % colorTypes.length];
       sparkles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        radius: isMobile ? Math.random() * 2 + 1.5 : Math.random() * 1.6 + 1.2,
-        baseAlpha: Math.random() * 0.45 + 0.45,
-        twinkleSpeed: Math.random() * 0.035 + 0.018,
+        radius: isMobile ? Math.random() * 1.6 + 1.2 : Math.random() * 1.4 + 1.0,
+        baseAlpha: Math.random() * 0.3 + 0.25, // Lower soft base alpha
+        twinkleSpeed: Math.random() * 0.03 + 0.015,
         twinkleOffset: Math.random() * Math.PI * 2,
-        vx: (Math.random() - 0.5) * 0.2,
-        vy: -Math.random() * 0.4 - 0.15,
+        vx: (Math.random() - 0.5) * 0.15,
+        vy: -Math.random() * 0.3 - 0.1,
         colorType: cType,
         rotation: Math.random() * Math.PI,
-        rotSpeed: (Math.random() - 0.5) * 0.015,
+        rotSpeed: (Math.random() - 0.5) * 0.012,
         isFourPointStar: i % 2 === 0,
       });
     }
@@ -196,7 +188,7 @@ export const ParticleCanvas: React.FC = () => {
     let lastPointerTime = 0;
     const handlePointerMove = (e: MouseEvent | TouchEvent) => {
       const now = performance.now();
-      if (now - lastPointerTime < 50) return;
+      if (now - lastPointerTime < 60) return;
       lastPointerTime = now;
 
       let clientX = 0;
@@ -213,10 +205,10 @@ export const ParticleCanvas: React.FC = () => {
       trailSparkles.push({
         x: clientX,
         y: clientY,
-        alpha: 0.85,
-        decay: 0.03,
+        alpha: 0.55,
+        decay: 0.025,
         color: colorDefinitions[c],
-        radius: isMobile ? 2.8 : 2.2,
+        radius: isMobile ? 2.2 : 1.8,
       });
     };
 
@@ -224,22 +216,12 @@ export const ParticleCanvas: React.FC = () => {
     window.addEventListener('touchmove', handlePointerMove, { passive: true });
 
     let tick = 0;
-    let lastFrameTime = performance.now();
 
-    const render = (currentTime: number) => {
-      // Delta time check to prevent running if tab was backgrounded
-      const elapsed = currentTime - lastFrameTime;
-      if (elapsed > 120) {
-        lastFrameTime = currentTime;
-        animationFrameId = requestAnimationFrame(render);
-        return;
-      }
-      lastFrameTime = currentTime;
-
+    const render = () => {
       tick++;
       ctx.clearRect(0, 0, width, height);
 
-      // 1. Gently Falling Vivid Fairytale Flower Petals
+      // 1. Gently Falling Flower Petals
       for (let i = 0; i < petals.length; i++) {
         const p = petals[i];
         p.y += p.vy;
@@ -257,26 +239,12 @@ export const ParticleCanvas: React.FC = () => {
         ctx.translate(p.x, p.y);
         ctx.rotate(p.angle);
 
-        // Petal subtle shadow / glow so it pops over light cards & pictures
-        ctx.shadowColor = 'rgba(158, 77, 110, 0.35)';
-        ctx.shadowBlur = 4;
-
-        // Realistic curved rose petal drawing
         ctx.fillStyle = p.color;
         ctx.beginPath();
-        // Teardrop/curved rose petal shape
         ctx.moveTo(0, -p.size);
-        ctx.bezierCurveTo(p.size * 0.65, -p.size * 0.5, p.size * 0.65, p.size * 0.7, 0, p.size);
-        ctx.bezierCurveTo(-p.size * 0.65, p.size * 0.7, -p.size * 0.65, -p.size * 0.5, 0, -p.size);
+        ctx.bezierCurveTo(p.size * 0.6, -p.size * 0.5, p.size * 0.6, p.size * 0.7, 0, p.size);
+        ctx.bezierCurveTo(-p.size * 0.6, p.size * 0.7, -p.size * 0.6, -p.size * 0.5, 0, -p.size);
         ctx.fill();
-
-        // Subtle petal vein highlight
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-        ctx.lineWidth = 0.8;
-        ctx.beginPath();
-        ctx.moveTo(0, -p.size * 0.65);
-        ctx.lineTo(0, p.size * 0.6);
-        ctx.stroke();
 
         ctx.restore();
       }
@@ -296,8 +264,8 @@ export const ParticleCanvas: React.FC = () => {
         if (s.x > width + 15) s.x = -15;
 
         const currentAlpha =
-          s.baseAlpha + Math.sin(tick * s.twinkleSpeed + s.twinkleOffset) * 0.35;
-        const clampedAlpha = Math.max(0.2, Math.min(0.95, currentAlpha));
+          s.baseAlpha + Math.sin(tick * s.twinkleSpeed + s.twinkleOffset) * 0.25;
+        const clampedAlpha = Math.max(0.1, Math.min(0.65, currentAlpha));
         const colorPrefix = colorDefinitions[s.colorType];
 
         ctx.save();
@@ -306,7 +274,7 @@ export const ParticleCanvas: React.FC = () => {
         if (s.isFourPointStar) {
           ctx.rotate(s.rotation);
           ctx.fillStyle = `${colorPrefix}${clampedAlpha})`;
-          const r = s.radius * 2.2;
+          const r = s.radius * 2;
           ctx.beginPath();
           ctx.moveTo(0, -r);
           ctx.quadraticCurveTo(0, 0, r, 0);
@@ -327,7 +295,7 @@ export const ParticleCanvas: React.FC = () => {
       // 3. Trail Sparkles
       for (let i = trailSparkles.length - 1; i >= 0; i--) {
         const ts = trailSparkles[i];
-        ts.y -= 0.3;
+        ts.y -= 0.25;
         ts.alpha -= ts.decay;
 
         if (ts.alpha <= 0) {
@@ -345,8 +313,7 @@ export const ParticleCanvas: React.FC = () => {
       nextButterflySpawnTime--;
       if (nextButterflySpawnTime <= 0) {
         spawnButterfly();
-        // Spawn next butterfly regularly (every 4-7 seconds) so mobile users see them continuously
-        nextButterflySpawnTime = isMobile ? 240 + Math.floor(Math.random() * 160) : 320 + Math.floor(Math.random() * 200);
+        nextButterflySpawnTime = isMobile ? 300 + Math.floor(Math.random() * 200) : 380 + Math.floor(Math.random() * 220);
       }
 
       for (let i = activeButterflies.length - 1; i >= 0; i--) {
@@ -356,14 +323,14 @@ export const ParticleCanvas: React.FC = () => {
         b.wingAngle = Math.sin(tick * b.wingSpeed);
 
         b.sparkleTimer++;
-        if (b.sparkleTimer % 12 === 0 && trailSparkles.length < 35) {
+        if (b.sparkleTimer % 14 === 0 && trailSparkles.length < 25) {
           trailSparkles.push({
             x: b.x - b.direction * (b.size * 0.5),
-            y: b.y + (Math.random() - 0.5) * 8,
-            alpha: 0.85,
+            y: b.y + (Math.random() - 0.5) * 6,
+            alpha: 0.50,
             decay: 0.025,
             color: 'rgba(245, 210, 140, ',
-            radius: isMobile ? 2.2 : 1.8,
+            radius: isMobile ? 1.8 : 1.5,
           });
         }
 
@@ -382,36 +349,16 @@ export const ParticleCanvas: React.FC = () => {
         ctx.scale(b.direction, 1);
         const wingScale = Math.abs(b.wingAngle);
 
-        // Glow/shadow to make butterfly clearly visible against any phone screen background
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
-        ctx.shadowBlur = 6;
-        ctx.shadowOffsetX = 1;
-        ctx.shadowOffsetY = 2;
-
         ctx.fillStyle = b.color;
-        ctx.globalAlpha = 0.95;
+        ctx.globalAlpha = 0.65; // Soft gentle opacity
 
-        // Top Forewing (detailed fairytale wing)
+        // Top Forewing
         ctx.beginPath();
         ctx.ellipse(
-          b.size * 0.6 * wingScale,
-          -b.size * 0.45,
-          b.size * 0.8 * wingScale,
-          b.size * 0.52,
-          Math.PI / 4.2,
-          0,
-          Math.PI * 2
-        );
-        ctx.fill();
-
-        // Inner wing accent (iridescent lighter glow)
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-        ctx.beginPath();
-        ctx.ellipse(
-          b.size * 0.55 * wingScale,
-          -b.size * 0.45,
-          b.size * 0.45 * wingScale,
-          b.size * 0.28,
+          b.size * 0.58 * wingScale,
+          -b.size * 0.42,
+          b.size * 0.75 * wingScale,
+          b.size * 0.48,
           Math.PI / 4.2,
           0,
           Math.PI * 2
@@ -419,49 +366,24 @@ export const ParticleCanvas: React.FC = () => {
         ctx.fill();
 
         // Bottom Hindwing
-        ctx.fillStyle = b.color;
-        ctx.beginPath();
-        ctx.ellipse(
-          b.size * 0.45 * wingScale,
-          b.size * 0.28,
-          b.size * 0.55 * wingScale,
-          b.size * 0.4,
-          -Math.PI / 5.5,
-          0,
-          Math.PI * 2
-        );
-        ctx.fill();
-
-        // Hindwing inner highlight
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
         ctx.beginPath();
         ctx.ellipse(
           b.size * 0.42 * wingScale,
-          b.size * 0.28,
-          b.size * 0.32 * wingScale,
-          b.size * 0.22,
+          b.size * 0.26,
+          b.size * 0.5 * wingScale,
+          b.size * 0.36,
           -Math.PI / 5.5,
           0,
           Math.PI * 2
         );
         ctx.fill();
 
-        // Butterfly Body & Antennae
-        ctx.globalAlpha = 1.0;
-        ctx.fillStyle = '#2d1b2e';
+        // Butterfly Body
+        ctx.globalAlpha = 0.75;
+        ctx.fillStyle = '#4a3749';
         ctx.beginPath();
-        ctx.ellipse(0, 0, 2, b.size * 0.55, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 0, 1.8, b.size * 0.5, 0, 0, Math.PI * 2);
         ctx.fill();
-
-        // Antennae
-        ctx.strokeStyle = '#2d1b2e';
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.moveTo(0, -b.size * 0.5);
-        ctx.quadraticCurveTo(b.size * 0.25, -b.size * 0.85, b.size * 0.4, -b.size * 0.9);
-        ctx.moveTo(0, -b.size * 0.5);
-        ctx.quadraticCurveTo(-b.size * 0.1, -b.size * 0.85, -b.size * 0.2, -b.size * 0.9);
-        ctx.stroke();
 
         ctx.restore();
       }
@@ -481,10 +403,69 @@ export const ParticleCanvas: React.FC = () => {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="pointer-events-none fixed inset-0 z-30 h-full w-full"
-      aria-hidden="true"
-    />
+    <>
+      {/* 1. HTML5 Canvas for high-refresh desktop and tablets */}
+      <canvas
+        ref={canvasRef}
+        className="pointer-events-none fixed inset-0 z-30 h-full w-full"
+        aria-hidden="true"
+      />
+
+      {/* 2. Guaranteed CSS Animation Overlay for Mobile / iPhone / Safari / WebKit */}
+      {/* Runs purely on GPU CSS transforms - 100% immune to iOS canvas suspension or low-power modes */}
+      <div
+        className="pointer-events-none fixed inset-0 z-30 overflow-hidden"
+        aria-hidden="true"
+      >
+        {/* Mobile Fluttering Butterflies (gentle soft opacity) */}
+        <div className="absolute animate-butterfly-1 opacity-60">
+          <div className="flex items-center gap-1 select-none text-2xl filter drop-shadow-sm animate-wing-flutter">
+            🦋
+          </div>
+        </div>
+
+        <div className="absolute animate-butterfly-2 opacity-55">
+          <div className="flex items-center gap-1 select-none text-xl filter drop-shadow-sm animate-wing-flutter">
+            🦋
+          </div>
+        </div>
+
+        {/* Softly Drifting Petals (pure CSS falling paths with gentle opacity) */}
+        <div
+          className="absolute top-0 left-[8%] animate-petal-fall"
+          style={{ animationDuration: '13s', animationDelay: '0s' }}
+        >
+          <div className="h-3.5 w-2.5 rounded-full bg-gradient-to-tr from-[#f48fb1]/60 to-[#f8bbd0]/50 rotate-45 shadow-[0_2px_4px_rgba(244,143,177,0.2)]" />
+        </div>
+
+        <div
+          className="absolute top-0 left-[28%] animate-petal-fall"
+          style={{ animationDuration: '16s', animationDelay: '3s' }}
+        >
+          <div className="h-4 w-3 rounded-full bg-gradient-to-tr from-[#f06292]/50 to-[#f8bbd0]/45 -rotate-12 shadow-[0_2px_4px_rgba(240,98,146,0.2)]" />
+        </div>
+
+        <div
+          className="absolute top-0 left-[52%] animate-petal-fall"
+          style={{ animationDuration: '14s', animationDelay: '1.5s' }}
+        >
+          <div className="h-3 w-2.5 rounded-full bg-gradient-to-tr from-[#ce93d8]/55 to-[#f48fb1]/45 rotate-30 shadow-[0_2px_4px_rgba(206,147,216,0.2)]" />
+        </div>
+
+        <div
+          className="absolute top-0 left-[76%] animate-petal-fall"
+          style={{ animationDuration: '17s', animationDelay: '5s' }}
+        >
+          <div className="h-4 w-3 rounded-full bg-gradient-to-tr from-[#f48fb1]/55 to-[#fce4ec]/50 -rotate-30 shadow-[0_2px_4px_rgba(244,143,177,0.2)]" />
+        </div>
+
+        <div
+          className="absolute top-0 left-[90%] animate-petal-fall"
+          style={{ animationDuration: '15s', animationDelay: '7s' }}
+        >
+          <div className="h-3.5 w-2.5 rounded-full bg-gradient-to-tr from-[#f8bbd0]/60 to-[#f48fb1]/40 rotate-15 shadow-[0_2px_4px_rgba(248,187,208,0.2)]" />
+        </div>
+      </div>
+    </>
   );
 };

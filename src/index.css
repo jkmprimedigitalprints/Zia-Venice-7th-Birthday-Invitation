@@ -154,6 +154,102 @@
   animation: castleWindowGlow 4s ease-in-out infinite;
 }
 
+/* Mobile & Universal CSS Falling Petals with soft gentle opacity */
+@keyframes petalFallGentle {
+  0% {
+    transform: translateY(-20px) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.65;
+  }
+  85% {
+    opacity: 0.60;
+  }
+  100% {
+    transform: translateY(105vh) translateX(45px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Mobile & Universal CSS Fluttering Butterflies */
+@keyframes butterflyFlight1 {
+  0% {
+    transform: translate3d(-10vw, 35vh, 0) scale(0.9) rotate(5deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.70;
+  }
+  30% {
+    transform: translate3d(25vw, 25vh, 0) scale(1) rotate(-8deg);
+  }
+  60% {
+    transform: translate3d(65vw, 42vh, 0) scale(0.95) rotate(12deg);
+    opacity: 0.75;
+  }
+  90% {
+    opacity: 0.70;
+  }
+  100% {
+    transform: translate3d(110vw, 20vh, 0) scale(1) rotate(5deg);
+    opacity: 0;
+  }
+}
+
+@keyframes butterflyFlight2 {
+  0% {
+    transform: translate3d(110vw, 60vh, 0) scaleX(-1) scale(0.85) rotate(-5deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.65;
+  }
+  45% {
+    transform: translate3d(70vw, 45vh, 0) scaleX(-1) scale(0.9) rotate(8deg);
+  }
+  75% {
+    transform: translate3d(30vw, 68vh, 0) scaleX(-1) scale(0.85) rotate(-10deg);
+    opacity: 0.65;
+  }
+  95% {
+    opacity: 0.50;
+  }
+  100% {
+    transform: translate3d(-15vw, 50vh, 0) scaleX(-1) scale(0.85) rotate(-5deg);
+    opacity: 0;
+  }
+}
+
+@keyframes wingFlutter {
+  0%, 100% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(0.25);
+  }
+}
+
+.animate-petal-fall {
+  animation: petalFallGentle 14s linear infinite;
+  will-change: transform, opacity;
+}
+
+.animate-butterfly-1 {
+  animation: butterflyFlight1 20s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.animate-butterfly-2 {
+  animation: butterflyFlight2 24s ease-in-out infinite 8s;
+  will-change: transform, opacity;
+}
+
+.animate-wing-flutter {
+  animation: wingFlutter 0.28s ease-in-out infinite;
+  will-change: transform;
+}
+
 /* Hide all scrollbars completely while keeping smooth scrolling functional */
 html, body, * {
   scrollbar-width: none !important; /* Firefox */
