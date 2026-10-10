@@ -10,7 +10,7 @@ interface MusicPlayerProps {
 export const MusicPlayer: React.FC<MusicPlayerProps> = ({ isPlaying, onToggle }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [volume, setVolume] = useState(25); // Set gentle default volume around 25%
+  const [volume, setVolume] = useState(80); // Set to 80% volume so it is loud and clear
 
   const handleMuteToggle = (e: React.MouseEvent) => {
     e.stopPropagation();

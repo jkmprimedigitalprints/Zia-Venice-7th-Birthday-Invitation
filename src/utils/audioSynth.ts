@@ -7,7 +7,7 @@
 class FairytaleAudioPlayer {
   private audio: HTMLAudioElement | null = null;
   private isPlaying = false;
-  private currentVolume = 0.5; // gentle default volume
+  private currentVolume = 0.8; // Set to 80% default volume so music is loud and clear
   private audioSrc = '/beauty_and_the_beast.mp3';
   private listeners: Set<(playing: boolean) => void> = new Set();
   private hasUserInteracted = false;
