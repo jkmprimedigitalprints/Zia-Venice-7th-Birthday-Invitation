@@ -1,0 +1,89 @@
+{
+  "entities": {
+    "RSVP": {
+      "title": "RSVP",
+      "description": "Guest RSVP confirmation for Princess Zia Venice 7th Birthday",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Unique RSVP identifier"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Full name of the guest"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["attending", "declined"],
+          "description": "Attendance status"
+        },
+        "submittedAt": {
+          "type": "string",
+          "description": "Timestamp string of submission"
+        }
+      },
+      "required": ["id", "name", "status", "submittedAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Guestbook wish or message for Princess Zia",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "Unique message identifier"
+        },
+        "author": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Author name"
+        },
+        "relation": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Relationship to celebrant"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "description": "Birthday message content"
+        },
+        "sparkleEmoji": {
+          "type": "string",
+          "maxLength": 10,
+          "description": "Chosen emoji"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Display time string"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp"
+        }
+      },
+      "required": ["id", "author", "message"]
+    }
+  },
+  "firestore": {
+    "/rsvps/{rsvpId}": {
+      "schema": {
+        "$ref": "#/entities/RSVP"
+      },
+      "description": "Collection of all guest RSVPs"
+    },
+    "/messages/{messageId}": {
+      "schema": {
+        "$ref": "#/entities/Message"
+      },
+      "description": "Collection of guestbook birthday messages"
+    }
+  }
+}

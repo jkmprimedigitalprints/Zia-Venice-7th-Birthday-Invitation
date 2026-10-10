@@ -1,7 +1,16 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
+import {
+  getStoredRSVPs,
+  saveRSVPRecord,
+  deleteRSVPRecord,
+  getStoredMessages,
+  saveMessageRecord,
+  getDatabaseStatus,
+  RSVPRecord,
+  GuestWishRecord,
+} from './api/db';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,71 +19,6 @@ const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 app.use(express.json());
-
-// Persistent store files
-const DATA_DIR = path.join(__dirname, 'data');
-const MESSAGES_FILE = path.join(DATA_DIR, 'messages.json');
-const RSVP_FILE = path.join(DATA_DIR, 'rsvp.json');
-
-// Empty initial data
-const DEFAULT_WISHES: unknown[] = [];
-const DEFAULT_RSVPS: unknown[] = [];
-
-// Ensure data folder exists
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-}
-
-// Initialize files if not present
-if (!fs.existsSync(MESSAGES_FILE)) {
-  fs.writeFileSync(MESSAGES_FILE, JSON.stringify(DEFAULT_WISHES, null, 2), 'utf-8');
-}
-if (!fs.existsSync(RSVP_FILE)) {
-  fs.writeFileSync(RSVP_FILE, JSON.stringify(DEFAULT_RSVPS, null, 2), 'utf-8');
-}
-
-function loadMessages() {
-  try {
-    const raw = fs.readFileSync(MESSAGES_FILE, 'utf-8');
-    return JSON.parse(raw);
-  } catch (err) {
-    console.error('Error reading messages file:', err);
-    return DEFAULT_WISHES;
-  }
-}
-
-function saveMessages(messages: unknown[]) {
-  try {
-    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2), 'utf-8');
-  } catch (err) {
-    console.error('Error writing messages file:', err);
-  }
-}
-
-interface RSVPRecord {
-  id: string;
-  name: string;
-  status: 'attending' | 'declined';
-  submittedAt: string;
-}
-
-function loadRSVPs(): RSVPRecord[] {
-  try {
-    const raw = fs.readFileSync(RSVP_FILE, 'utf-8');
-    return JSON.parse(raw);
-  } catch (err) {
-    console.error('Error reading rsvp file:', err);
-    return [];
-  }
-}
-
-function saveRSVPs(rsvps: RSVPRecord[]) {
-  try {
-    fs.writeFileSync(RSVP_FILE, JSON.stringify(rsvps, null, 2), 'utf-8');
-  } catch (err) {
-    console.error('Error writing rsvp file:', err);
-  }
-}
 
 // SSE Clients for Real-time push notifications
 interface SSEClient {
@@ -111,19 +55,38 @@ function broadcastRSVP(data: unknown) {
     });
 }
 
+// Credentials for RSVP Admin
+const ADMIN_USER = process.env.ADMIN_USERNAME || 'Zia';
+const ADMIN_PASS = process.env.ADMIN_PASSWORD || 'Zia@07';
+
+function verifyAdmin(req: Request): boolean {
+  const user = req.headers['x-admin-username'] as string | undefined;
+  const pass = req.headers['x-admin-password'] as string | undefined;
+  const isUser =
+    typeof user === 'string' &&
+    (user.trim() === ADMIN_USER || user.trim().toLowerCase() === ADMIN_USER.toLowerCase());
+  const isPass = pass === ADMIN_PASS;
+  return Boolean(isUser && isPass);
+}
+
 // API Routes for Guestbook
-app.get('/api/messages', (_req: Request, res: Response) => {
-  const msgs = loadMessages();
-  res.json(msgs);
+app.get('/api/messages', async (_req: Request, res: Response) => {
+  try {
+    const msgs = await getStoredMessages();
+    res.json(msgs);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Error fetching messages';
+    res.status(500).json({ error: msg });
+  }
 });
 
-app.post('/api/messages', (req: Request, res: Response) => {
+app.post('/api/messages', async (req: Request, res: Response) => {
   const { author, relation, message, sparkleEmoji } = req.body;
   if (!author || !message) {
     return res.status(400).json({ error: 'Author and message are required' });
   }
 
-  const newWish = {
+  const newWish: GuestWishRecord = {
     id: `wish-${Date.now()}`,
     author: String(author).trim(),
     relation: String(relation || 'Royal Guest').trim(),
@@ -133,17 +96,17 @@ app.post('/api/messages', (req: Request, res: Response) => {
     createdAt: new Date().toISOString(),
   };
 
-  const msgs = loadMessages();
-  const updated = [newWish, ...msgs];
-  saveMessages(updated);
-
-  // Broadcast to all connected clients
-  broadcastMessage(newWish);
-
-  res.status(201).json(newWish);
+  try {
+    const saved = await saveMessageRecord(newWish);
+    broadcastMessage(saved);
+    res.status(201).json(saved);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Error saving message';
+    res.status(500).json({ error: msg });
+  }
 });
 
-// Server-Sent Events (SSE) endpoint for Messages
+// SSE endpoint for Messages
 app.get('/api/messages/events', (req: Request, res: Response) => {
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
@@ -160,70 +123,55 @@ app.get('/api/messages/events', (req: Request, res: Response) => {
   });
 });
 
-// Credentials for RSVP Admin
-const ADMIN_USER = 'Zia';
-const ADMIN_PASS = 'Zia@07';
-
-function verifyAdmin(req: Request): boolean {
-  const user = req.headers['x-admin-username'];
-  const pass = req.headers['x-admin-password'];
-  const isUser = typeof user === 'string' && (user.trim() === ADMIN_USER || user.trim().toLowerCase() === ADMIN_USER.toLowerCase());
-  const isPass = pass === ADMIN_PASS;
-  return Boolean(isUser && isPass);
-}
-
 // RSVP Public Endpoints
-app.post('/api/rsvp', (req: Request, res: Response) => {
+app.get('/api/rsvp', async (_req: Request, res: Response) => {
+  try {
+    const list = await getStoredRSVPs();
+    const summary = {
+      total: list.length,
+      attending: list.filter((r) => r.status === 'attending').length,
+      declined: list.filter((r) => r.status === 'declined').length,
+    };
+    res.json({ list, summary });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Error fetching RSVPs';
+    res.status(500).json({ error: msg });
+  }
+});
+
+app.post('/api/rsvp', async (req: Request, res: Response) => {
   const { name, status } = req.body;
   if (!name || typeof name !== 'string' || !name.trim()) {
-    return res.status(400).json({ error: 'Name is required' });
+    return res.status(400).json({ error: 'Guest name is required.' });
   }
   if (status !== 'attending' && status !== 'declined') {
-    return res.status(400).json({ error: 'Status must be either attending or declined' });
+    return res.status(400).json({ error: 'Status must be either attending or declined.' });
   }
 
-  const trimmedName = name.trim();
-  const rsvps = loadRSVPs();
-
-  // Check if name already exists (case-insensitive update or new entry)
-  const existingIndex = rsvps.findIndex(
-    (r) => r.name.toLowerCase() === trimmedName.toLowerCase()
-  );
-
-  let newOrUpdatedRecord: RSVPRecord;
-  if (existingIndex >= 0) {
-    newOrUpdatedRecord = {
-      ...rsvps[existingIndex],
-      name: trimmedName,
+  try {
+    const record: RSVPRecord = await saveRSVPRecord({
+      name: name.trim(),
       status,
-      submittedAt: new Date().toISOString(),
-    };
-    rsvps[existingIndex] = newOrUpdatedRecord;
-  } else {
-    newOrUpdatedRecord = {
-      id: `rsvp-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-      name: trimmedName,
-      status,
-      submittedAt: new Date().toISOString(),
-    };
-    rsvps.unshift(newOrUpdatedRecord);
+    });
+
+    const currentList = await getStoredRSVPs();
+
+    broadcastRSVP({
+      type: 'UPDATE',
+      record,
+      list: currentList,
+      summary: {
+        total: currentList.length,
+        attending: currentList.filter((r) => r.status === 'attending').length,
+        declined: currentList.filter((r) => r.status === 'declined').length,
+      },
+    });
+
+    res.status(200).json({ success: true, record });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Error saving RSVP';
+    res.status(500).json({ error: msg });
   }
-
-  saveRSVPs(rsvps);
-
-  // Broadcast real-time update to RSVP dashboard
-  broadcastRSVP({
-    type: 'UPDATE',
-    record: newOrUpdatedRecord,
-    list: rsvps,
-    summary: {
-      total: rsvps.length,
-      attending: rsvps.filter((r) => r.status === 'attending').length,
-      declined: rsvps.filter((r) => r.status === 'declined').length,
-    },
-  });
-
-  res.status(200).json({ success: true, record: newOrUpdatedRecord });
 });
 
 // RSVP Admin Auth Verification
@@ -234,33 +182,39 @@ app.post('/api/rsvp/auth', (req: Request, res: Response) => {
     (username.trim() === ADMIN_USER || username.trim().toLowerCase() === ADMIN_USER.toLowerCase());
   const isPass = typeof password === 'string' && password.trim() === ADMIN_PASS;
   if (isUser && isPass) {
-    res.json({ success: true });
+    res.json({ success: true, user: ADMIN_USER });
   } else {
     res.status(401).json({ error: 'Invalid credentials' });
   }
 });
 
 // RSVP Admin List & Summary (Protected)
-app.get('/api/rsvp/admin', (req: Request, res: Response) => {
+app.get('/api/rsvp/admin', async (req: Request, res: Response) => {
   if (!verifyAdmin(req)) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: 'Unauthorized admin access' });
   }
 
-  const rsvps = loadRSVPs();
-  res.json({
-    list: rsvps,
-    summary: {
-      total: rsvps.length,
-      attending: rsvps.filter((r) => r.status === 'attending').length,
-      declined: rsvps.filter((r) => r.status === 'declined').length,
-    },
-  });
+  try {
+    const rsvps = await getStoredRSVPs();
+    res.json({
+      list: rsvps,
+      summary: {
+        total: rsvps.length,
+        attending: rsvps.filter((r) => r.status === 'attending').length,
+        declined: rsvps.filter((r) => r.status === 'declined').length,
+      },
+      dbStatus: getDatabaseStatus(),
+    });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Error reading admin RSVPs';
+    res.status(500).json({ error: msg });
+  }
 });
 
 // RSVP Admin Delete Entry (Protected)
-app.delete('/api/rsvp/admin/:id?', (req: Request, res: Response) => {
+app.delete('/api/rsvp/admin/:id?', async (req: Request, res: Response) => {
   if (!verifyAdmin(req)) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: 'Unauthorized admin access' });
   }
 
   const id = req.params.id || (req.query.id as string);
@@ -268,25 +222,29 @@ app.delete('/api/rsvp/admin/:id?', (req: Request, res: Response) => {
     return res.status(400).json({ error: 'ID is required' });
   }
 
-  const rsvps = loadRSVPs();
-  const updated = rsvps.filter((r) => r.id !== id);
-  saveRSVPs(updated);
+  try {
+    await deleteRSVPRecord(id);
+    const updated = await getStoredRSVPs();
 
-  broadcastRSVP({
-    type: 'DELETE',
-    deletedId: id,
-    list: updated,
-    summary: {
-      total: updated.length,
-      attending: updated.filter((r) => r.status === 'attending').length,
-      declined: updated.filter((r) => r.status === 'declined').length,
-    },
-  });
+    broadcastRSVP({
+      type: 'DELETE',
+      deletedId: id,
+      list: updated,
+      summary: {
+        total: updated.length,
+        attending: updated.filter((r) => r.status === 'attending').length,
+        declined: updated.filter((r) => r.status === 'declined').length,
+      },
+    });
 
-  res.json({ success: true });
+    res.json({ success: true, deletedId: id });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Error deleting RSVP';
+    res.status(500).json({ error: msg });
+  }
 });
 
-// Server-Sent Events (SSE) endpoint for RSVP Dashboard
+// SSE endpoint for RSVP Dashboard
 app.get('/api/rsvp/events', (req: Request, res: Response) => {
   const user = req.query.username;
   const pass = req.query.password;
@@ -308,7 +266,6 @@ app.get('/api/rsvp/events', (req: Request, res: Response) => {
     clients = clients.filter((c) => c.id !== clientId);
   });
 });
-
 
 async function startServer() {
   const isProd = process.env.NODE_ENV === 'production';

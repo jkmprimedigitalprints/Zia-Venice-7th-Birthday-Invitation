@@ -1,6 +1,6 @@
 {
-  "name": "Zia Venice Abonal · 7th Birthday Fairytale Invitation",
-  "description": "You are cordially invited to the magical fairytale 7th birthday celebration of Little Princess Zia Venice Abonal.",
+  "name": "Zia Venice 7th Birthday Invitation",
+  "description": "Magical fairytale 7th birthday celebration invitation and real-time RSVP tracking for Little Princess Zia Venice Abonal.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

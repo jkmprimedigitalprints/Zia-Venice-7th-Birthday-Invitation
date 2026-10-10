@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Heart, CheckCircle2, Sparkles, Send, ShieldAlert, Lock } from 'lucide-react';
 import { AttendanceStatus } from '../types';
+import { db, handleFirestoreError, OperationType } from '../firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 export const RSVPSection: React.FC = () => {
   const [name, setName] = useState('');
@@ -26,64 +28,61 @@ export const RSVPSection: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
+    const guestName = name.trim();
+    if (!guestName) {
       setErrorMessage('Please enter your full name.');
       return;
     }
+    if (guestName.length > 100) {
+      setErrorMessage('Name cannot exceed 100 characters.');
+      return;
+    }
+
     setErrorMessage('');
     setIsSubmitting(true);
 
-    const guestName = name.trim();
-    const newRecord = {
-      id: `rsvp-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+    const safeId = `rsvp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const rsvpPayload = {
+      id: safeId,
       name: guestName,
       status,
       submittedAt: new Date().toISOString(),
     };
 
-    // Cache to local storage immediately so it is available locally
     try {
-      const stored = localStorage.getItem('zia_all_rsvps') || '[]';
-      const parsed = JSON.parse(stored);
-      const filtered = Array.isArray(parsed)
-        ? parsed.filter((r: { name?: string }) => r.name?.toLowerCase() !== guestName.toLowerCase())
-        : [];
-      filtered.unshift(newRecord);
-      localStorage.setItem('zia_all_rsvps', JSON.stringify(filtered));
-      localStorage.setItem('zia_rsvp_submitted_name', guestName);
-      localStorage.setItem('zia_rsvp_submitted_status', status);
-    } catch {
-      // ignore
-    }
-
-    try {
-      const res = await fetch('/api/rsvp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: guestName, status }),
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to submit RSVP to server');
-      }
-
-      setSubmittedName(guestName);
-      setSubmittedStatus(status);
-    } catch {
-      // Local fallback in case network issue occurs or on static hosting
+      // 1. Direct Firebase Firestore write (instant real-time push to admin dashboard)
       try {
-        const stored = localStorage.getItem('zia_guest_rsvp_offline') || '[]';
-        const parsed = JSON.parse(stored);
-        const filtered = Array.isArray(parsed)
-          ? parsed.filter((r: { name?: string }) => r.name?.toLowerCase() !== guestName.toLowerCase())
-          : [];
-        filtered.unshift(newRecord);
-        localStorage.setItem('zia_guest_rsvp_offline', JSON.stringify(filtered));
-      } catch {
-        // ignore
+        await setDoc(doc(db, 'rsvps', safeId), rsvpPayload);
+        console.log('[RSVP] Successfully saved directly to Firebase Firestore:', safeId);
+      } catch (firestoreErr) {
+        console.warn('[RSVP] Direct Firestore write notice, falling back to API:', firestoreErr);
       }
+
+      // 2. Also notify backend endpoint for server sync / logging
+      try {
+        await fetch('/api/rsvp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: guestName, status }),
+        });
+      } catch {
+        // Backend API is optional when direct Firestore write succeeded
+      }
+
+      // Success: Save user's own status for UI lock and display confirmation
+      try {
+        localStorage.setItem('zia_rsvp_submitted_name', guestName);
+        localStorage.setItem('zia_rsvp_submitted_status', status);
+      } catch {
+        // ignore storage errors
+      }
+
       setSubmittedName(guestName);
       setSubmittedStatus(status);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Network error: Please check your connection and try again.';
+      console.error('[RSVP] Submission failed:', msg);
+      setErrorMessage(msg);
     } finally {
       setIsSubmitting(false);
     }

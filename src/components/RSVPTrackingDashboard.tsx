@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Users, CheckCircle2, XCircle, Search, Trash2, LogOut, Lock, 
-  RefreshCw, Radio, ShieldCheck, ArrowLeft, Clock
+  RefreshCw, Radio, ShieldCheck, ArrowLeft, Clock, Database, AlertCircle
 } from 'lucide-react';
 import { RSVPResponse, RSVPSummary } from '../types';
+import { db, handleFirestoreError, OperationType } from '../firebase';
+import { collection, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 
 interface RSVPTrackingDashboardProps {
   onBackToInvitation: () => void;
@@ -25,6 +27,8 @@ export const RSVPTrackingDashboard: React.FC<RSVPTrackingDashboardProps> = ({ on
   const [isLoading, setIsLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isLiveConnected, setIsLiveConnected] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [dbInfo, setDbInfo] = useState<{ provider: string; configured: boolean; message: string } | null>(null);
 
   // Check saved session in sessionStorage
   useEffect(() => {
@@ -107,11 +111,10 @@ export const RSVPTrackingDashboard: React.FC<RSVPTrackingDashboardProps> = ({ on
     setPassword('');
   };
 
-  // Fetch full list & summary
-  const fetchRSVPData = async () => {
-    setIsLoading(true);
-    let serverList: RSVPResponse[] | null = null;
-    let serverSummary: RSVPSummary | null = null;
+  // Fetch full list & summary from production database
+  const fetchRSVPData = async (silent = false) => {
+    if (!silent) setIsLoading(true);
+    setFetchError(null);
 
     try {
       const res = await fetch('/api/rsvp/admin', {
@@ -120,81 +123,92 @@ export const RSVPTrackingDashboard: React.FC<RSVPTrackingDashboardProps> = ({ on
           'x-admin-password': 'Zia@07',
         },
       });
-      const contentType = res.headers.get('content-type') || '';
-      if (res.ok && contentType.includes('application/json')) {
-        const data = await res.json();
-        if (Array.isArray(data.list)) {
-          serverList = data.list;
-          serverSummary = data.summary;
-        }
-      }
-    } catch (err) {
-      console.warn('RSVP data fetch notice:', err);
-    }
 
-    // Merge with local submissions so no responses are ever lost on static hosting
-    const recordMap = new Map<string, RSVPResponse>();
-
-    if (serverList) {
-      serverList.forEach((r) => {
-        const key = (r.id || r.name).toLowerCase().trim();
-        recordMap.set(key, r);
-      });
-    }
-
-    try {
-      const rawAll = localStorage.getItem('zia_all_rsvps');
-      if (rawAll) {
-        const parsed = JSON.parse(rawAll);
-        if (Array.isArray(parsed)) {
-          parsed.forEach((item: RSVPResponse) => {
-            const key = (item.id || item.name).toLowerCase().trim();
-            if (!recordMap.has(key)) {
-              recordMap.set(key, item);
-            }
-          });
-        }
+      if (res.status === 401) {
+        setAuthError('Session expired. Please log in again.');
+        setIsAuthenticated(false);
+        return;
       }
 
-      const rawOffline = localStorage.getItem('zia_guest_rsvp_offline');
-      if (rawOffline) {
-        const parsed = JSON.parse(rawOffline);
-        if (Array.isArray(parsed)) {
-          parsed.forEach((item: RSVPResponse) => {
-            const key = (item.id || item.name).toLowerCase().trim();
-            if (!recordMap.has(key)) {
-              recordMap.set(key, item);
-            }
-          });
-        }
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(errorData?.error || `Server responded with status ${res.status}`);
       }
-    } catch {
-      // ignore
-    }
 
-    const merged = Array.from(recordMap.values());
-    const attendingCount = merged.filter((r) => r.status === 'attending').length;
-    const declinedCount = merged.filter((r) => r.status === 'declined').length;
-
-    setRsvps(merged);
-    setSummary(
-      serverSummary && serverList && serverList.length >= merged.length
-        ? serverSummary
-        : {
-            total: merged.length,
-            attending: attendingCount,
-            declined: declinedCount,
+      const data = await res.json();
+      if (Array.isArray(data.list)) {
+        setRsvps(data.list);
+        setSummary(
+          data.summary || {
+            total: data.list.length,
+            attending: data.list.filter((r: RSVPResponse) => r.status === 'attending').length,
+            declined: data.list.filter((r: RSVPResponse) => r.status === 'declined').length,
           }
-    );
-    setIsLoading(false);
+        );
+      }
+      if (data.dbStatus) {
+        setDbInfo(data.dbStatus);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to retrieve RSVP records from database';
+      console.error('[Dashboard] Fetch error:', msg);
+      setFetchError(msg);
+    } finally {
+      if (!silent) setIsLoading(false);
+    }
   };
 
-  // Connect SSE for Realtime updates
+  // Connect Realtime Subscriptions & Polling Fallback
   useEffect(() => {
     if (!isAuthenticated) return;
 
+    // Initial load
     fetchRSVPData();
 
+    // 1. Firebase Firestore Native onSnapshot Real-time Listener
+    let unsubscribeFirestore: (() => void) | null = null;
+    try {
+      unsubscribeFirestore = onSnapshot(
+        collection(db, 'rsvps'),
+        (snapshot) => {
+          const list: RSVPResponse[] = [];
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            list.push({
+              id: data.id || docSnap.id,
+              name: data.name,
+              status: data.status === 'declined' ? 'declined' : 'attending',
+              submittedAt: data.submittedAt || new Date().toISOString(),
+            });
+          });
+          list.sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+          setRsvps(list);
+          setSummary({
+            total: list.length,
+            attending: list.filter((r) => r.status === 'attending').length,
+            declined: list.filter((r) => r.status === 'declined').length,
+          });
+          setIsLiveConnected(true);
+          setDbInfo({
+            provider: 'firebase_firestore',
+            configured: true,
+            message: 'Connected to Firebase Firestore in Realtime via onSnapshot listener',
+          });
+        },
+        (error) => {
+          console.warn('[Dashboard] Firestore onSnapshot notice:', error);
+          try {
+            handleFirestoreError(error, OperationType.GET, 'rsvps');
+          } catch {
+            // Handled
+          }
+        }
+      );
+    } catch (err) {
+      console.warn('[Dashboard] Could not start Firestore onSnapshot:', err);
+    }
+
+    // 2. Server-Sent Events (SSE) stream for Express / Node server environments
     let eventSource: EventSource | null = null;
     try {
       if (typeof window !== 'undefined' && 'EventSource' in window) {
@@ -212,78 +226,89 @@ export const RSVPTrackingDashboard: React.FC<RSVPTrackingDashboardProps> = ({ on
               setSummary(data.summary);
             }
           } catch (err) {
-            console.error('SSE parse error:', err);
+            console.error('[Dashboard] SSE parse error:', err);
           }
         };
 
         eventSource.onerror = () => {
-          setIsLiveConnected(false);
+          // If SSE fails (e.g. on serverless Vercel), live indicator falls back to Firestore
         };
-      }
-    } catch {
-      setIsLiveConnected(false);
-    }
-
-    // Polling interval fallback every 10s to guarantee sync
-    const interval = setInterval(fetchRSVPData, 10000);
-
-    return () => {
-      if (eventSource) eventSource.close();
-      clearInterval(interval);
-    };
-  }, [isAuthenticated]);
-
-  const handleDelete = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to remove RSVP for "${name}"?`)) return;
-    setDeletingId(id);
-
-    // Optimistically remove from state & update summary
-    setRsvps((prev) => {
-      const updated = prev.filter((r) => r.id !== id && r.name !== name);
-      setSummary({
-        total: updated.length,
-        attending: updated.filter((r) => r.status === 'attending').length,
-        declined: updated.filter((r) => r.status === 'declined').length,
-      });
-      return updated;
-    });
-
-    // Also remove from local storage caches
-    try {
-      const rawAll = localStorage.getItem('zia_all_rsvps');
-      if (rawAll) {
-        const parsed = JSON.parse(rawAll);
-        if (Array.isArray(parsed)) {
-          localStorage.setItem(
-            'zia_all_rsvps',
-            JSON.stringify(parsed.filter((r: RSVPResponse) => r.id !== id && r.name !== name))
-          );
-        }
-      }
-      const rawOffline = localStorage.getItem('zia_guest_rsvp_offline');
-      if (rawOffline) {
-        const parsed = JSON.parse(rawOffline);
-        if (Array.isArray(parsed)) {
-          localStorage.setItem(
-            'zia_guest_rsvp_offline',
-            JSON.stringify(parsed.filter((r: RSVPResponse) => r.id !== id && r.name !== name))
-          );
-        }
       }
     } catch {
       // ignore
     }
 
+    // 3. Heartbeat Active Polling (Every 3.5 seconds on active tab, every 12 seconds in background)
+    // Guarantees instant synchronization across all browsers even on serverless or ad-blocked setups
+    let pollInterval: NodeJS.Timeout | null = null;
+
+    const startPolling = (ms: number) => {
+      if (pollInterval) clearInterval(pollInterval);
+      pollInterval = setInterval(() => {
+        fetchRSVPData(true);
+      }, ms);
+    };
+
+    startPolling(3500);
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        startPolling(12000);
+      } else {
+        fetchRSVPData(true);
+        startPolling(3500);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      if (unsubscribeFirestore) {
+        unsubscribeFirestore();
+      }
+      if (eventSource) {
+        eventSource.close();
+      }
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isAuthenticated]);
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to permanently remove RSVP for "${name}"?`)) return;
+    setDeletingId(id);
+
     try {
-      await fetch(`/api/rsvp/admin/${id}`, {
+      // 1. Direct Firestore deletion
+      try {
+        await deleteDoc(doc(db, 'rsvps', id));
+        console.log('[Dashboard] Successfully deleted from Firebase Firestore:', id);
+      } catch (fErr) {
+        console.warn('[Dashboard] Direct Firestore delete notice:', fErr);
+      }
+
+      // 2. Also notify backend endpoint
+      const res = await fetch(`/api/rsvp/admin?id=${encodeURIComponent(id)}`, {
         method: 'DELETE',
         headers: {
           'x-admin-username': 'Zia',
           'x-admin-password': 'Zia@07',
         },
       });
-    } catch (err) {
-      console.error('Delete notice:', err);
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => null);
+        throw new Error(err?.error || 'Failed to delete record from database');
+      }
+
+      // Refresh source of truth from database
+      await fetchRSVPData(true);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Could not delete entry';
+      alert(msg);
+      console.error('[Dashboard] Delete error:', msg);
     } finally {
       setDeletingId(null);
     }
@@ -409,7 +434,7 @@ export const RSVPTrackingDashboard: React.FC<RSVPTrackingDashboardProps> = ({ on
             </div>
 
             <button
-              onClick={fetchRSVPData}
+              onClick={() => fetchRSVPData()}
               disabled={isLoading}
               title="Refresh Data"
               className="p-2 rounded-xl border border-[#F8DDE8] bg-[#FFF9F3] hover:bg-white text-[#6C567B] hover:text-[#9E4D6E] transition-colors cursor-pointer"
@@ -429,6 +454,38 @@ export const RSVPTrackingDashboard: React.FC<RSVPTrackingDashboardProps> = ({ on
 
       {/* Main Content Area */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-6">
+        {/* Error notification banner if database fetch failed */}
+        {fetchError && (
+          <div className="flex items-center gap-3 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+            <AlertCircle className="h-5 w-5 text-rose-600 shrink-0" />
+            <div className="flex-1">
+              <span className="font-semibold">Database Notice:</span> {fetchError}
+            </div>
+            <button
+              onClick={() => fetchRSVPData()}
+              className="px-3 py-1 rounded-xl bg-rose-600 text-white font-medium hover:bg-rose-700 transition-colors cursor-pointer"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        {/* Database Persistence Status Badge */}
+        {dbInfo && (
+          <div className="flex items-center justify-between flex-wrap gap-2 px-4 py-2.5 rounded-2xl bg-white/80 border border-[#F8DDE8] text-[11px] text-[#6C567B]">
+            <div className="flex items-center gap-2">
+              <Database className="h-3.5 w-3.5 text-[#9E4D6E]" />
+              <span className="font-semibold text-[#9E4D6E]">
+                Persistence: Google Firebase Firestore (Realtime)
+              </span>
+              <span className="hidden md:inline text-[#6C567B]/70">— {dbInfo.message}</span>
+            </div>
+            <span className="text-[#6C567B]/60 font-mono text-[10px]">
+              Auto-sync active
+            </span>
+          </div>
+        )}
+
         {/* Real-time Indicator banner on mobile */}
         <div className="sm:hidden flex items-center justify-between bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs text-emerald-800 font-medium">
           <span className="flex items-center gap-1.5">

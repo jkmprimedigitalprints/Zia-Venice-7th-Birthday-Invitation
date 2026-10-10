@@ -1,40 +1,8 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import fs from 'fs';
-import path from 'path';
+import { getStoredRSVPs, deleteRSVPRecord, getDatabaseStatus } from './db';
 
-const TMP_RSVP_FILE = path.join('/tmp', 'zia_rsvps.json');
-const ADMIN_USER = 'Zia';
-const ADMIN_PASS = 'Zia@07';
-
-interface RSVPRecord {
-  id: string;
-  name: string;
-  status: 'attending' | 'declined';
-  submittedAt: string;
-}
-
-let inMemoryRSVPs: RSVPRecord[] = [];
-
-function getStoredRSVPs(): RSVPRecord[] {
-  try {
-    if (fs.existsSync(TMP_RSVP_FILE)) {
-      const data = fs.readFileSync(TMP_RSVP_FILE, 'utf-8');
-      return JSON.parse(data);
-    }
-  } catch {
-    // fallback
-  }
-  return inMemoryRSVPs;
-}
-
-function saveStoredRSVPs(list: RSVPRecord[]) {
-  inMemoryRSVPs = list;
-  try {
-    fs.writeFileSync(TMP_RSVP_FILE, JSON.stringify(list), 'utf-8');
-  } catch {
-    // ignore
-  }
-}
+const ADMIN_USER = process.env.ADMIN_USERNAME || 'Zia';
+const ADMIN_PASS = process.env.ADMIN_PASSWORD || 'Zia@07';
 
 function isAuthorized(req: IncomingMessage): boolean {
   const userHeader = req.headers['x-admin-username'] as string | undefined;
@@ -85,55 +53,71 @@ export default async function handler(
   }
 
   if (!isAuthorized(req)) {
+    console.warn('[API/rsvp-admin] Unauthorized access attempt rejected');
     res.statusCode = 401;
-    res.end(JSON.stringify({ error: 'Unauthorized admin access' }));
+    res.end(JSON.stringify({ error: 'Unauthorized: Invalid admin credentials.' }));
     return;
   }
 
-  const rsvps = getStoredRSVPs();
-
   if (req.method === 'GET') {
-    const summary = {
-      total: rsvps.length,
-      attending: rsvps.filter((r) => r.status === 'attending').length,
-      declined: rsvps.filter((r) => r.status === 'declined').length,
-    };
-    res.statusCode = 200;
-    res.end(JSON.stringify({ list: rsvps, summary }));
+    try {
+      const rsvps = await getStoredRSVPs();
+      const summary = {
+        total: rsvps.length,
+        attending: rsvps.filter((r) => r.status === 'attending').length,
+        declined: rsvps.filter((r) => r.status === 'declined').length,
+      };
+      const dbStatus = getDatabaseStatus();
+
+      res.statusCode = 200;
+      res.end(
+        JSON.stringify({
+          list: rsvps,
+          summary,
+          dbStatus,
+        })
+      );
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to retrieve admin RSVP data';
+      console.error('[API/rsvp-admin] GET Error:', msg);
+      res.statusCode = 500;
+      res.end(JSON.stringify({ error: msg }));
+    }
     return;
   }
 
   if (req.method === 'DELETE') {
     try {
       const urlObj = new URL(req.url || '', 'http://localhost');
-      let idToDelete = urlObj.searchParams.get('id');
+      let id = urlObj.searchParams.get('id');
 
-      // Also parse from url path if rewrites forwarded /api/rsvp-admin/id
-      if (!idToDelete) {
+      // Also check URL path if passed as /api/rsvp-admin/xyz
+      if (!id) {
         const parts = (req.url || '').split('?')[0].split('/');
         const lastPart = parts[parts.length - 1];
         if (lastPart && lastPart !== 'rsvp-admin' && lastPart !== 'admin') {
-          idToDelete = lastPart;
+          id = lastPart;
         }
       }
 
-      if (!idToDelete) {
+      if (!id) {
         res.statusCode = 400;
-        res.end(JSON.stringify({ error: 'Missing RSVP ID to delete' }));
+        res.end(JSON.stringify({ error: 'RSVP ID is required for deletion.' }));
         return;
       }
 
-      const filtered = rsvps.filter((r) => r.id !== idToDelete);
-      saveStoredRSVPs(filtered);
+      await deleteRSVPRecord(id);
+      console.log(`[API/rsvp-admin] Successfully deleted RSVP id: ${id}`);
 
       res.statusCode = 200;
-      res.end(JSON.stringify({ success: true, deletedId: idToDelete }));
-      return;
-    } catch {
+      res.end(JSON.stringify({ success: true, deletedId: id }));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to delete RSVP';
+      console.error('[API/rsvp-admin] DELETE Error:', msg);
       res.statusCode = 500;
-      res.end(JSON.stringify({ error: 'Internal server error deleting RSVP' }));
-      return;
+      res.end(JSON.stringify({ error: msg }));
     }
+    return;
   }
 
   res.statusCode = 405;

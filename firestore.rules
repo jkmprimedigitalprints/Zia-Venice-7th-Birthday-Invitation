@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default-deny catch-all safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function isValidRSVP(data) {
+      return data.keys().hasAll(['id', 'name', 'status', 'submittedAt']) &&
+             data.keys().hasOnly(['id', 'name', 'status', 'submittedAt']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.status is string && (data.status == 'attending' || data.status == 'declined') &&
+             data.submittedAt is string && data.submittedAt.size() <= 64;
+    }
+
+    function isValidMessage(data) {
+      return data.keys().hasAll(['id', 'author', 'message']) &&
+             data.keys().hasOnly(['id', 'author', 'relation', 'message', 'sparkleEmoji', 'timestamp', 'createdAt']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.author is string && data.author.size() > 0 && data.author.size() <= 100 &&
+             data.message is string && data.message.size() > 0 && data.message.size() <= 500 &&
+             (!('relation' in data) || (data.relation is string && data.relation.size() <= 50)) &&
+             (!('sparkleEmoji' in data) || (data.sparkleEmoji is string && data.sparkleEmoji.size() <= 10)) &&
+             (!('timestamp' in data) || (data.timestamp is string && data.timestamp.size() <= 64)) &&
+             (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 64));
+    }
+
+    // RSVPs Collection
+    match /rsvps/{rsvpId} {
+      allow read: if true;
+      allow create: if isValidId(rsvpId) && isValidRSVP(incoming());
+      allow update: if isValidId(rsvpId) && isValidRSVP(incoming());
+      allow delete: if isValidId(rsvpId);
+    }
+
+    // Guestbook Messages Collection
+    match /messages/{messageId} {
+      allow read: if true;
+      allow create: if isValidId(messageId) && isValidMessage(incoming());
+      allow update, delete: if false;
+    }
+  }
+}

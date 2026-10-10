@@ -1,43 +1,11 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import fs from 'fs';
-import path from 'path';
-
-const TMP_RSVP_FILE = path.join('/tmp', 'zia_rsvps.json');
-
-interface RSVPRecord {
-  id: string;
-  name: string;
-  status: 'attending' | 'declined';
-  submittedAt: string;
-}
-
-let inMemoryRSVPs: RSVPRecord[] = [];
-
-function getStoredRSVPs(): RSVPRecord[] {
-  try {
-    if (fs.existsSync(TMP_RSVP_FILE)) {
-      const data = fs.readFileSync(TMP_RSVP_FILE, 'utf-8');
-      return JSON.parse(data);
-    }
-  } catch {
-    // fallback
-  }
-  return inMemoryRSVPs;
-}
-
-function saveStoredRSVPs(list: RSVPRecord[]) {
-  inMemoryRSVPs = list;
-  try {
-    fs.writeFileSync(TMP_RSVP_FILE, JSON.stringify(list), 'utf-8');
-  } catch {
-    // ignore
-  }
-}
+import { getStoredRSVPs, saveRSVPRecord, RSVPRecord } from './db';
 
 export default async function handler(
   req: IncomingMessage & { body?: unknown; method?: string },
   res: ServerResponse
 ) {
+  // CORS & Response Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -50,9 +18,21 @@ export default async function handler(
   }
 
   if (req.method === 'GET') {
-    const list = getStoredRSVPs();
-    res.statusCode = 200;
-    res.end(JSON.stringify({ list }));
+    try {
+      const list = await getStoredRSVPs();
+      const summary = {
+        total: list.length,
+        attending: list.filter((r) => r.status === 'attending').length,
+        declined: list.filter((r) => r.status === 'declined').length,
+      };
+      res.statusCode = 200;
+      res.end(JSON.stringify({ list, summary }));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to retrieve RSVPs';
+      console.error('[API/rsvp] GET Error:', msg);
+      res.statusCode = 500;
+      res.end(JSON.stringify({ error: msg }));
+    }
     return;
   }
 
@@ -66,54 +46,42 @@ export default async function handler(
       const parsed = JSON.parse(body || '{}');
       const { name, status } = parsed;
 
+      // 1. Validation
       if (!name || typeof name !== 'string' || !name.trim()) {
         res.statusCode = 400;
-        res.end(JSON.stringify({ error: 'Name is required' }));
+        res.end(JSON.stringify({ error: 'Guest name is required.' }));
+        return;
+      }
+
+      if (name.trim().length > 100) {
+        res.statusCode = 400;
+        res.end(JSON.stringify({ error: 'Name cannot exceed 100 characters.' }));
         return;
       }
 
       if (status !== 'attending' && status !== 'declined') {
         res.statusCode = 400;
-        res.end(JSON.stringify({ error: 'Status must be either attending or declined' }));
+        res.end(JSON.stringify({ error: 'Attendance status must be either attending or declined.' }));
         return;
       }
 
-      const trimmedName = name.trim();
-      const rsvps = getStoredRSVPs();
+      // 2. Persist to Production Database
+      const savedRecord: RSVPRecord = await saveRSVPRecord({
+        name: name.trim(),
+        status,
+      });
 
-      const existingIndex = rsvps.findIndex(
-        (r) => r.name.toLowerCase() === trimmedName.toLowerCase()
-      );
-
-      let record: RSVPRecord;
-      if (existingIndex >= 0) {
-        record = {
-          ...rsvps[existingIndex],
-          name: trimmedName,
-          status,
-          submittedAt: new Date().toISOString(),
-        };
-        rsvps[existingIndex] = record;
-      } else {
-        record = {
-          id: `rsvp-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-          name: trimmedName,
-          status,
-          submittedAt: new Date().toISOString(),
-        };
-        rsvps.unshift(record);
-      }
-
-      saveStoredRSVPs(rsvps);
+      console.log(`[API/rsvp] Successfully persisted RSVP for: ${savedRecord.name} (${savedRecord.status})`);
 
       res.statusCode = 200;
-      res.end(JSON.stringify({ success: true, record }));
-      return;
-    } catch {
-      res.statusCode = 400;
-      res.end(JSON.stringify({ error: 'Invalid JSON body' }));
-      return;
+      res.end(JSON.stringify({ success: true, record: savedRecord }));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Database error processing RSVP submission';
+      console.error('[API/rsvp] POST Error:', msg);
+      res.statusCode = 500;
+      res.end(JSON.stringify({ error: msg }));
     }
+    return;
   }
 
   res.statusCode = 405;

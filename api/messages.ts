@@ -1,45 +1,10 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import fs from 'fs';
-import path from 'path';
+import { getStoredMessages, saveMessageRecord, GuestWishRecord } from './db';
 
-// File path in /tmp for serverless persistence on Vercel
-const TMP_FILE = path.join('/tmp', 'zia_messages.json');
-
-interface Wish {
-  id: string;
-  author: string;
-  relation: string;
-  message: string;
-  sparkleEmoji: string;
-  timestamp: string;
-  createdAt: string;
-}
-
-let inMemoryMessages: Wish[] = [];
-
-function getStoredMessages(): Wish[] {
-  try {
-    if (fs.existsSync(TMP_FILE)) {
-      const data = fs.readFileSync(TMP_FILE, 'utf-8');
-      return JSON.parse(data);
-    }
-  } catch {
-    // fallback to in-memory
-  }
-  return inMemoryMessages;
-}
-
-function saveStoredMessages(msgs: Wish[]) {
-  inMemoryMessages = msgs;
-  try {
-    fs.writeFileSync(TMP_FILE, JSON.stringify(msgs), 'utf-8');
-  } catch {
-    // ignore
-  }
-}
-
-export default async function handler(req: IncomingMessage & { body?: unknown; method?: string }, res: ServerResponse) {
-  // Set CORS and JSON headers
+export default async function handler(
+  req: IncomingMessage & { body?: unknown; method?: string },
+  res: ServerResponse
+) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -52,9 +17,16 @@ export default async function handler(req: IncomingMessage & { body?: unknown; m
   }
 
   if (req.method === 'GET') {
-    const msgs = getStoredMessages();
-    res.statusCode = 200;
-    res.end(JSON.stringify(msgs));
+    try {
+      const msgs = await getStoredMessages();
+      res.statusCode = 200;
+      res.end(JSON.stringify(msgs));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to retrieve messages';
+      console.error('[API/messages] GET Error:', msg);
+      res.statusCode = 500;
+      res.end(JSON.stringify({ error: msg }));
+    }
     return;
   }
 
@@ -72,25 +44,24 @@ export default async function handler(req: IncomingMessage & { body?: unknown; m
         return;
       }
 
-      const newWish: Wish = {
-        id: `wish-${Date.now()}`,
-        author: String(parsed.author).trim(),
-        relation: String(parsed.relation || 'Royal Guest').trim(),
-        message: String(parsed.message).trim(),
+      const newWish: GuestWishRecord = {
+        id: parsed.id || `wish-${Date.now()}`,
+        author: String(parsed.author).trim().substring(0, 100),
+        relation: String(parsed.relation || 'Royal Guest').trim().substring(0, 50),
+        message: String(parsed.message).trim().substring(0, 500),
         sparkleEmoji: parsed.sparkleEmoji || '✨',
-        timestamp: 'Just now',
+        timestamp: parsed.timestamp || 'Just now',
         createdAt: new Date().toISOString(),
       };
 
-      const msgs = getStoredMessages();
-      const updated = [newWish, ...msgs];
-      saveStoredMessages(updated);
-
+      const saved = await saveMessageRecord(newWish);
       res.statusCode = 201;
-      res.end(JSON.stringify(newWish));
-    } catch {
-      res.statusCode = 400;
-      res.end(JSON.stringify({ error: 'Invalid JSON body' }));
+      res.end(JSON.stringify(saved));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to save message';
+      console.error('[API/messages] POST Error:', msg);
+      res.statusCode = 500;
+      res.end(JSON.stringify({ error: msg }));
     }
     return;
   }

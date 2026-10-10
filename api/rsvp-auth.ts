@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 
-const ADMIN_USER = 'Zia';
-const ADMIN_PASS = 'Zia@07';
+const ADMIN_USER = process.env.ADMIN_USERNAME || 'Zia';
+const ADMIN_PASS = process.env.ADMIN_PASSWORD || 'Zia@07';
 
 export default async function handler(
   req: IncomingMessage & { body?: unknown; method?: string },

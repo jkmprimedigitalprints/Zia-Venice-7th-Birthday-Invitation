@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, MessageCircleHeart, Send, Heart } from 'lucide-react';
 import { GuestWish } from '../types';
+import { db, handleFirestoreError, OperationType } from '../firebase';
+import { collection, onSnapshot, doc, setDoc } from 'firebase/firestore';
 
 export const GuestbookSection: React.FC = () => {
   const [wishes, setWishes] = useState<GuestWish[]>([]);
@@ -59,7 +61,47 @@ export const GuestbookSection: React.FC = () => {
 
     fetchMessages();
 
-    // Background live SSE stream
+    // 1. Firebase Firestore Native onSnapshot Real-time Listener
+    let unsubscribeFirestore: (() => void) | null = null;
+    try {
+      unsubscribeFirestore = onSnapshot(
+        collection(db, 'messages'),
+        (snapshot) => {
+          const msgs: GuestWish[] = [];
+          snapshot.forEach((d) => {
+            const data = d.data();
+            msgs.push({
+              id: data.id || d.id,
+              author: data.author,
+              relation: data.relation || 'Royal Guest',
+              message: data.message,
+              sparkleEmoji: data.sparkleEmoji || '✨',
+              timestamp: data.timestamp || 'Just now',
+            });
+          });
+          if (msgs.length > 0) {
+            setWishes(msgs);
+            try {
+              localStorage.setItem('zia_guestbook_wishes', JSON.stringify(msgs));
+            } catch {
+              // ignore
+            }
+          }
+        },
+        (error) => {
+          console.warn('[Guestbook] Firestore listener notice:', error);
+          try {
+            handleFirestoreError(error, OperationType.GET, 'messages');
+          } catch {
+            // Handled
+          }
+        }
+      );
+    } catch (err) {
+      console.warn('[Guestbook] Could not attach Firestore listener:', err);
+    }
+
+    // 2. Background live SSE stream
     let eventSource: EventSource | null = null;
     try {
       if (typeof window !== 'undefined' && 'EventSource' in window) {
@@ -84,17 +126,20 @@ export const GuestbookSection: React.FC = () => {
         };
 
         eventSource.onerror = () => {
-          // EventSource will automatically retry in background, close silently if needed
+          // EventSource fallback
         };
       }
     } catch {
       // ignore
     }
 
-    // Secondary sync poll every 15 seconds (gentle on network)
+    // 3. Secondary sync poll every 15 seconds (gentle on network)
     const pollTimer = setInterval(fetchMessages, 15000);
 
     return () => {
+      if (unsubscribeFirestore) {
+        unsubscribeFirestore();
+      }
       if (eventSource) {
         eventSource.close();
       }
@@ -110,56 +155,56 @@ export const GuestbookSection: React.FC = () => {
 
     const now = new Date();
     const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const safeMsgId = `wish_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
     const newWish: GuestWish = {
-      id: Date.now().toString(),
+      id: safeMsgId,
       author: author.trim(),
-      relation: relation.trim() || 'Guest',
+      relation: relation.trim() || 'Royal Guest',
       message: message.trim(),
       timestamp: `Today, ${timeString}`,
       sparkleEmoji: selectedEmoji,
     };
 
     try {
-      const res = await fetch('/api/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newWish),
+      // 1. Direct Firebase Firestore write
+      try {
+        await setDoc(doc(db, 'messages', safeMsgId), {
+          ...newWish,
+          createdAt: new Date().toISOString(),
+        });
+        console.log('[Guestbook] Successfully saved directly to Firebase Firestore:', safeMsgId);
+      } catch (fErr) {
+        console.warn('[Guestbook] Direct Firestore write notice:', fErr);
+      }
+
+      // 2. Also notify backend endpoint for server sync / logging
+      try {
+        await fetch('/api/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newWish),
+        });
+      } catch {
+        // Backend API is optional when direct Firestore write succeeded
+      }
+
+      setWishes((prev) => {
+        if (prev.some((w) => w.id === newWish.id)) return prev;
+        const updated = [newWish, ...prev];
+        try {
+          localStorage.setItem('zia_guestbook_wishes', JSON.stringify(updated));
+        } catch {
+          // ignore
+        }
+        return updated;
       });
 
-      if (res.ok) {
-        const savedWish = await res.json();
-        setWishes((prev) => {
-          const updated = [savedWish, ...prev];
-          try {
-            localStorage.setItem('zia_guestbook_wishes', JSON.stringify(updated));
-          } catch {
-            // ignore
-          }
-          return updated;
-        });
-        setAuthor('');
-        setRelation('');
-        setMessage('');
-      } else {
-        // Fallback optimistic addition
-        setWishes((prev) => {
-          const updated = [newWish, ...prev];
-          try {
-            localStorage.setItem('zia_guestbook_wishes', JSON.stringify(updated));
-          } catch {
-            // ignore
-          }
-          return updated;
-        });
-        setAuthor('');
-        setRelation('');
-        setMessage('');
-      }
+      setAuthor('');
+      setRelation('');
+      setMessage('');
     } catch {
-      // Offline fallback: save locally
+      // Fallback optimistic addition
       setWishes((prev) => {
         const updated = [newWish, ...prev];
         try {
