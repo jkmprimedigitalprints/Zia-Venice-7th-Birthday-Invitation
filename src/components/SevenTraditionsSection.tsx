@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Crown, Sparkles, Heart } from 'lucide-react';
-import { TRADITIONS_DATA, TraditionKey } from '../data/traditionsData';
+import { TRADITIONS_DATA, TRADITIONS_ORDER, TraditionKey } from '../data/traditionsData';
 
 export const SevenTraditionsSection: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TraditionKey>('roses');
+  const [activeTab, setActiveTab] = useState<TraditionKey>('gifts');
   const traditionsData = TRADITIONS_DATA;
   const currentCategory = traditionsData[activeTab];
 
@@ -27,9 +27,9 @@ export const SevenTraditionsSection: React.FC = () => {
           </p>
         </div>
 
-        {/* Tab Buttons (All 8 Categories) */}
+        {/* Tab Buttons (Ordered: Gifts, Chocolates, Make Up, Blue Bills, Mini Cakes, Wishes, Candles, Roses) */}
         <div className="mb-10 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-          {(Object.keys(traditionsData) as TraditionKey[]).map((tabKey) => {
+          {TRADITIONS_ORDER.map((tabKey) => {
             const cat = traditionsData[tabKey];
             const isActive = activeTab === tabKey;
             return (
@@ -82,17 +82,6 @@ export const SevenTraditionsSection: React.FC = () => {
               </div>
             ))}
           </div>
-        </div>
-
-        {/* Quick Link to Separate Program Flow Page */}
-        <div className="mt-8 text-center">
-          <a
-            href="#program"
-            className="inline-flex items-center gap-2 rounded-full border border-[#C49A55]/40 bg-white/90 px-6 py-2.5 font-poppins text-xs font-semibold tracking-wider text-[#9E4D6E] shadow-2xs hover:border-[#C49A55] hover:bg-white hover:shadow-xs transition-all cursor-pointer"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-[#C49A55]" />
-            <span>View Full Royal Program Flow Itinerary</span>
-          </a>
         </div>
       </div>
     </section>
