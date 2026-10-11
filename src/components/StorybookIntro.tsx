@@ -29,7 +29,11 @@ export const StorybookIntro: React.FC<StorybookIntroProps> = ({ onEnter }) => {
     };
   }, []);
 
+  const hasEnteredRef = React.useRef(false);
+
   const handleEnterClick = () => {
+    if (hasEnteredRef.current) return;
+    hasEnteredRef.current = true;
     onEnter();
   };
 
@@ -177,14 +181,8 @@ export const StorybookIntro: React.FC<StorybookIntroProps> = ({ onEnter }) => {
                 className="pt-4"
               >
                 <button
-                  onPointerDown={() => {
-                    // Start audio on the very first touch contact for zero-delay response
-                    onEnter();
-                  }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onEnter();
-                  }}
+                  type="button"
+                  onClick={handleEnterClick}
                   className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border-2 border-[#C49A55] bg-gradient-to-r from-[#F8DDE8] via-[#FFF9F3] to-[#E9DDF7] px-8 py-3.5 font-poppins text-xs font-semibold tracking-widest text-[#6C567B] shadow-[0_6px_25px_rgba(196,154,85,0.3)] transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer will-change-transform"
                 >
                   <Sparkles className="h-4 w-4 text-[#C49A55]" />
