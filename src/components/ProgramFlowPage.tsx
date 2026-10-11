@@ -359,7 +359,7 @@ export const ProgramFlowPage: React.FC<ProgramFlowPageProps> = ({ onBackToInvita
                 <div>
                   <div className="inline-flex items-center gap-1 text-[11px] font-bold tracking-wider uppercase text-[#9E4D6E]">
                     <Sparkles className="h-3 w-3" />
-                    <span>Grand Finale Ceremony</span>
+                    <span></span>
                   </div>
                   <h3 className="font-playfair text-xl sm:text-2xl font-bold text-[#9E4D6E]">
                     {TRADITIONS_DATA.roses.label}
@@ -368,7 +368,7 @@ export const ProgramFlowPage: React.FC<ProgramFlowPageProps> = ({ onBackToInvita
               </div>
 
               <span className="self-start sm:self-center px-3 py-1 rounded-full bg-[#9E4D6E] text-white text-xs font-bold shadow-2xs">
-                Final Ceremony
+              
               </span>
             </div>
 
