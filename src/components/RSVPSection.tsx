@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Heart, CheckCircle2, Sparkles, Send, ShieldAlert, Lock } from 'lucide-react';
+import { Mail, Heart, CheckCircle2, Sparkles, Send, ShieldAlert, Lock, AlertTriangle } from 'lucide-react';
 import { AttendanceStatus } from '../types';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
@@ -109,13 +109,39 @@ export const RSVPSection: React.FC = () => {
           <p className="mt-2 text-sm sm:text-base text-[#6C567B] font-poppins">
             We would be honored by your presence as Princess Zia celebrates her 7th birthday!
           </p>
+        </div>
 
-          {/* Prominent Required Disclaimer */}
-          <div className="mt-4 mx-auto max-w-md rounded-2xl bg-amber-50/90 border border-amber-200/80 px-4 py-3 shadow-xs text-amber-900 flex items-start gap-3 text-left">
-            <ShieldAlert className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-            <p className="text-xs sm:text-sm font-medium leading-relaxed font-poppins">
-              <span className="font-semibold text-amber-950">Important Notice:</span> Please confirm your attendance as we need to reserve your slot.
-            </p>
+        {/* ⚠️ HIGHLY VISIBLE IMPORTANT NOTICE: LIMITED VENUE CAPACITY */}
+        <div className="mb-8 rounded-3xl bg-gradient-to-br from-[#FFF5EA] via-[#FFF0F4] to-[#FFF9F3] border-2 border-[#E2A662] shadow-[0_12px_35px_rgba(226,166,98,0.22)] p-6 sm:p-7 relative overflow-hidden">
+          {/* Subtle decorative watermark icon */}
+          <div className="pointer-events-none absolute -right-3 -bottom-3 text-[#E2A662]/15">
+            <AlertTriangle className="h-28 w-28" />
+          </div>
+
+          <div className="relative z-10">
+            {/* Header Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#D96B43] to-[#C94A6E] text-white text-xs sm:text-sm font-bold tracking-wide shadow-xs mb-3.5">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              <span>⚠️ IMPORTANT NOTICE: LIMITED VENUE CAPACITY</span>
+            </div>
+
+            {/* Required Filipino text */}
+            <div className="space-y-3 font-poppins text-xs sm:text-sm text-[#5C4533] leading-relaxed">
+              <p className="font-medium text-[#4A2D1B] text-sm sm:text-base leading-snug">
+                Dahil limitado lamang ang kapasidad ng venue,{' '}
+                <strong className="font-black text-[#9E4D6E] underline decoration-[#E2A662] decoration-2 underline-offset-2">
+                  ONE COMPANION LANG PO ANG PINAPAYAGAN SA BAWAT INVITED GUEST.
+                </strong>
+              </p>
+
+              <p className="text-[#6C567B] leading-relaxed">
+                Kung may nais po kayong isamang higit sa isang companion, mangyaring i-message muna kami nang personal upang mapag-usapan at makumpirma kung maaari pa itong payagan, depende sa available na kapasidad ng venue.
+              </p>
+
+              <div className="pt-1 flex items-center gap-2 font-semibold text-[#9E4D6E] text-xs sm:text-sm">
+                <span>Maraming salamat po sa inyong pang-unawa at pakikiisa! 💗</span>
+              </div>
+            </div>
           </div>
         </div>
 

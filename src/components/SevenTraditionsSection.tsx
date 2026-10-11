@@ -3,7 +3,6 @@ import { Crown, Sparkles, Heart } from 'lucide-react';
 
 interface TraditionPerson {
   number: number;
-  label: string;
   name: string;
 }
 
@@ -28,138 +27,130 @@ interface TraditionCategory {
 export const SevenTraditionsSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TraditionKey>('roses');
 
-const traditionsData: Record<TraditionKey, TraditionCategory> = {
-  gifts: {
-    id: 'gifts',
-    label: '7 GIFTS',
-    symbol: '🎁',
-    itemType: 'Gift',
-    list: [
-      { number: 1, label: '1st Gift', name: 'Ninang Jacqueline Oraya' },
-      { number: 2, label: '2nd Gift', name: 'Ninang Mhira' },
-      { number: 3, label: '3rd Gift', name: 'Ninong Angelo' },
-      { number: 4, label: '4th Gift', name: 'Ninang Janette' },
-      { number: 5, label: '5th Gift', name: 'Tita Ganda' },
-      { number: 6, label: '6th Gift', name: 'Tito Harley' },
-      { number: 7, label: '7th Gift', name: 'Tito Kenneth' },
-    ],
-  },
+  const traditionsData: Record<TraditionKey, TraditionCategory> = {
+    roses: {
+      id: 'roses',
+      label: '7 ROSES',
+      symbol: '🌹',
+      itemType: 'Rose',
+      list: [
+        { number: 1, name: 'Lolo Melencio' },
+        { number: 2, name: 'Papa Nog' },
+        { number: 3, name: 'Tito Emmel' },
+        { number: 4, name: 'Tito Bernard' },
+        { number: 5, name: 'Kuya MC' },
+        { number: 6, name: 'Kuya Sky' },
+        { number: 7, name: 'Daddy Jun' },
+      ],
+    },
+    wishes: {
+      id: 'wishes',
+      label: '7 WISHES',
+      symbol: '🪄',
+      itemType: 'Wish',
+      list: [
+        { number: 1, name: 'Mama Endang' },
+        { number: 2, name: 'Tita Liit' },
+        { number: 3, name: 'Tita Melody' },
+        { number: 4, name: 'Tita Sarah' },
+        { number: 5, name: 'Lola Lengget' },
+        { number: 6, name: 'Lola Lolita' },
+        { number: 7, name: 'Nanay Santa' },
+      ],
+    },
+    makeups: {
+      id: 'makeups',
+      label: '7 MAKE UP',
+      symbol: '💄',
+      itemType: 'Make Up',
+      list: [
+        { number: 1, name: 'Ate Princess' },
+        { number: 2, name: 'Ate Chloe' },
+        { number: 3, name: 'Yannah' },
+        { number: 4, name: 'Ate Kia' },
+        { number: 5, name: 'Ate Che' },
+        { number: 6, name: 'Ate Chiel' },
+        { number: 7, name: 'Ate Jannah' },
+      ],
+    },
+    chocolates: {
+      id: 'chocolates',
+      label: '7 CHOCOLATES',
+      symbol: '🍫',
+      itemType: 'Chocolate',
+      list: [
+        { number: 1, name: 'Kuya Abiezer' },
+        { number: 2, name: 'Kuya Craig' },
+        { number: 3, name: 'Hezekiah' },
+        { number: 4, name: 'Ate Kaykay' },
+        { number: 5, name: 'Kuya Jayrell' },
+        { number: 6, name: 'Ate Zhayrish' },
+        { number: 7, name: 'Ate Tirzah' },
+      ],
+    },
+    blueBills: {
+      id: 'blueBills',
+      label: '7 BLUE BILLS',
+      symbol: '💵',
+      itemType: 'Blue Bill',
+      list: [
+        { number: 1, name: 'Ninong Jed' },
+        { number: 2, name: 'Ninong Mher' },
+        { number: 3, name: 'Ninong Sherman' },
+        { number: 4, name: 'Ninong Aike' },
+        { number: 5, name: 'Ninong Uya' },
+        { number: 6, name: 'Ninong Paul' },
+        { number: 7, name: 'Ninong Richard' },
+      ],
+    },
+    candles: {
+      id: 'candles',
+      label: '7 CANDLES',
+      symbol: '🕯️',
+      itemType: 'Candle',
+      list: [
+        { number: 1, name: 'Ninang Melannie' },
+        { number: 2, name: 'Ninang Regine' },
+        { number: 3, name: 'Ninang Camille' },
+        { number: 4, name: 'Ninang Sabel' },
+        { number: 5, name: 'Ninang Marlyn' },
+        { number: 6, name: 'Ninang Rona' },
+        { number: 7, name: 'Tita Ninang Mae' },
+      ],
+    },
+    gifts: {
+      id: 'gifts',
+      label: '7 GIFTS',
+      symbol: '🎁',
+      itemType: 'Gift',
+      list: [
+        { number: 1, name: 'Ninang Jacqueline Oraya' },
+        { number: 2, name: 'Ninang Mhira' },
+        { number: 3, name: 'Ninong Angelo' },
+        { number: 4, name: 'Ninang Janette' },
+        { number: 5, name: 'Tita Ganda' },
+        { number: 6, name: 'Tito Harley' },
+        { number: 7, name: 'Tito Kenneth' },
+      ],
+    },
+    miniCakes: {
+      id: 'miniCakes',
+      label: '7 MINI CAKES',
+      symbol: '🧁',
+      itemType: 'Mini Cake',
+      list: [
+        { number: 1, name: 'Ninong Dongke' },
+        { number: 2, name: 'Ninong Tinoy' },
+        { number: 3, name: 'Ninang Jacky Rodriguez' },
+        { number: 4, name: 'Ninang Sha' },
+        { number: 5, name: 'Ninong Peter' },
+        { number: 6, name: 'Ninong Reschian' },
+        { number: 7, name: 'Ninong Lee' },
+      ],
+    },
+  };
 
-  chocolates: {
-    id: 'chocolates',
-    label: '7 CHOCOLATES',
-    symbol: '🍫',
-    itemType: 'Chocolate',
-    list: [
-      { number: 1, label: '1st Chocolate', name: 'Kuya Abiezer' },
-      { number: 2, label: '2nd Chocolate', name: 'Kuya Craig' },
-      { number: 3, label: '3rd Chocolate', name: 'Hezekiah' },
-      { number: 4, label: '4th Chocolate', name: 'Ate Kaykay' },
-      { number: 5, label: '5th Chocolate', name: 'Kuya Jayrell' },
-      { number: 6, label: '6th Chocolate', name: 'Ate Zhyrish' },
-      { number: 7, label: '7th Chocolate', name: 'Ate Tirzah' },
-    ],
-  },
-
-  makeups: {
-    id: 'makeups',
-    label: '7 MAKE UP',
-    symbol: '💄',
-    itemType: 'Make Up',
-    list: [
-      { number: 1, label: '1st Make Up', name: 'Ate Princess' },
-      { number: 2, label: '2nd Make Up', name: 'Ate Chloe' },
-      { number: 3, label: '3rd Make Up', name: 'Yannah' },
-      { number: 4, label: '4th Make Up', name: 'Ate Kia' },
-      { number: 5, label: '5th Make Up', name: 'Ate Che' },
-      { number: 6, label: '6th Make Up', name: 'Ate Chiel' },
-      { number: 7, label: '7th Make Up', name: 'Ate Jannah' },
-    ],
-  },
-
-  blueBills: {
-    id: 'blueBills',
-    label: '7 BLUE BILLS',
-    symbol: '💵',
-    itemType: 'Blue Bill',
-    list: [
-      { number: 1, label: '1st Blue Bill', name: 'Ninong Jed' },
-      { number: 2, label: '2nd Blue Bill', name: 'Ninong Mher' },
-      { number: 3, label: '3rd Blue Bill', name: 'Ninong Sherman' },
-      { number: 4, label: '4th Blue Bill', name: 'Ninong Aike' },
-      { number: 5, label: '5th Blue Bill', name: 'Ninong Uya' },
-      { number: 6, label: '6th Blue Bill', name: 'Ninong Paul' },
-      { number: 7, label: '7th Blue Bill', name: 'Ninong Richard' },
-    ],
-  },
-
-  miniCakes: {
-    id: 'miniCakes',
-    label: '7 MINI CAKES',
-    symbol: '🧁',
-    itemType: 'Mini Cake',
-    list: [
-      { number: 1, label: '1st Mini Cake', name: 'Ninong Dongke' },
-      { number: 2, label: '2nd Mini Cake', name: 'Ninong Tinoy' },
-      { number: 3, label: '3rd Mini Cake', name: 'Ninang Jacky Rodriguez' },
-      { number: 4, label: '4th Mini Cake', name: 'Ninang Sha' },
-      { number: 5, label: '5th Mini Cake', name: 'Ninong Peter' },
-      { number: 6, label: '6th Mini Cake', name: 'Ninong Reschian' },
-      { number: 7, label: '7th Mini Cake', name: 'Ninong Lee' },
-    ],
-  },
-
-  wishes: {
-    id: 'wishes',
-    label: '7 WISHES',
-    symbol: '🪄',
-    itemType: 'Wish',
-    list: [
-      { number: 1, label: '1st Wish', name: 'Mama Endang' },
-      { number: 2, label: '2nd Wish', name: 'Tita Liit' },
-      { number: 3, label: '3rd Wish', name: 'Tita Melody' },
-      { number: 4, label: '4th Wish', name: 'Tita Sarah' },
-      { number: 5, label: '5th Wish', name: 'Lola Lengget' },
-      { number: 6, label: '6th Wish', name: 'Lola Lolita' },
-      { number: 7, label: '7th Wish', name: 'Nanay Santa' },
-    ],
-  },
-
-  candles: {
-    id: 'candles',
-    label: '7 CANDLES',
-    symbol: '🕯️',
-    itemType: 'Candle',
-    list: [
-      { number: 1, label: '1st Candle', name: 'Ninang Melannie' },
-      { number: 2, label: '2nd Candle', name: 'Ninang Regine' },
-      { number: 3, label: '3rd Candle', name: 'Ninang Camille' },
-      { number: 4, label: '4th Candle', name: 'Ninang Sabel' },
-      { number: 5, label: '5th Candle', name: 'Ninang Marlyn' },
-      { number: 6, label: '6th Candle', name: 'Ninang Rona' },
-      { number: 7, label: '7th Candle', name: 'Tita Ninang Mae' },
-    ],
-  },
-
-  roses: {
-    id: 'roses',
-    label: '7 ROSES',
-    symbol: '🌹',
-    itemType: 'Rose',
-    list: [
-      { number: 1, label: '1st Rose', name: 'Lolo Melencio' },
-      { number: 2, label: '2nd Rose', name: 'Papa Nog' },
-      { number: 3, label: '3rd Rose', name: 'Tito Emmel' },
-      { number: 4, label: '4th Rose', name: 'Tito Bernard' },
-      { number: 5, label: '5th Rose', name: 'Kuya MC' },
-      { number: 6, label: '6th Rose', name: 'Kuya Sky' },
-      { number: 7, label: '7th Rose', name: 'Daddy Jun' },
-    ],
-  },
-};
-
-const currentCategory = traditionsData[activeTab];
-
+  const currentCategory = traditionsData[activeTab];
 
   return (
     <section id="traditions" className="relative py-20 px-4 sm:px-6 overflow-hidden bg-gradient-to-b from-[#E9DDF7]/30 via-[#F8DDE8]/30 to-[#FFF9F3]">
@@ -203,7 +194,7 @@ const currentCategory = traditionsData[activeTab];
           })}
         </div>
 
-        {/* Clean Name List (Pure name roster cards) */}
+        {/* Clean Name List (Pure number + name roster cards) */}
         <div className="mx-auto max-w-2xl rounded-3xl border border-[#C49A55]/30 bg-white/95 p-5 sm:p-8 shadow-[0_8px_30px_rgba(108,86,123,0.08)] backdrop-blur-md">
           <div className="mb-6 flex items-center justify-between border-b border-[#F8DDE8] pb-4">
             <div className="flex items-center gap-2.5">
@@ -223,21 +214,16 @@ const currentCategory = traditionsData[activeTab];
                 key={item.number}
                 className="group flex items-center justify-between rounded-xl border border-[#F8DDE8] bg-gradient-to-r from-white via-[#FFF9F3] to-white px-4 py-3.5 transition-all hover:border-[#C49A55] hover:shadow-xs"
               >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg font-poppins text-xs font-semibold bg-[#F8DDE8] text-[#9E4D6E]">
+                <div className="flex items-center gap-3.5">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg font-poppins text-xs font-bold bg-[#F8DDE8] text-[#9E4D6E] shadow-2xs">
                     {item.number}
                   </div>
-                  <span className="font-poppins text-sm font-semibold tracking-wide text-[#6C567B]">
-                    {item.label}
+                  <span className="font-poppins text-sm sm:text-base font-semibold tracking-wide text-[#6C567B] group-hover:text-[#9E4D6E] transition-colors">
+                    {item.name}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span className="font-poppins text-sm sm:text-base font-semibold text-[#6C567B]">
-                    {item.name}
-                  </span>
-                  <Heart className="h-3.5 w-3.5 text-[#9E4D6E]/60 group-hover:text-[#9E4D6E] transition-colors" />
-                </div>
+                <Heart className="h-4 w-4 text-[#9E4D6E]/40 group-hover:text-[#9E4D6E] transition-colors" />
               </div>
             ))}
           </div>

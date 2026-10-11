@@ -23,42 +23,22 @@ export const GuestbookSection: React.FC = () => {
         if (Array.isArray(data)) {
           setWishes(data);
           try {
-            localStorage.setItem('zia_guestbook_wishes', JSON.stringify(data));
+            if (data.length > 0) {
+              localStorage.setItem('zia_guestbook_wishes', JSON.stringify(data));
+            } else {
+              localStorage.removeItem('zia_guestbook_wishes');
+            }
           } catch {
             // ignore storage quota errors
           }
         }
       }
     } catch {
-      // Offline or network lag fallback: load from cached wishes
-      try {
-        const cached = localStorage.getItem('zia_guestbook_wishes');
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setWishes((prev) => (prev.length === 0 ? parsed : prev));
-          }
-        }
-      } catch {
-        // ignore parse error
-      }
+      // Offline fallback: load from cached wishes if offline
     }
   };
 
   useEffect(() => {
-    // Initial load from cache immediately so UI is never blank
-    try {
-      const cached = localStorage.getItem('zia_guestbook_wishes');
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setWishes(parsed);
-        }
-      }
-    } catch {
-      // ignore
-    }
-
     fetchMessages();
 
     // 1. Firebase Firestore Native onSnapshot Real-time Listener
@@ -79,13 +59,15 @@ export const GuestbookSection: React.FC = () => {
               timestamp: data.timestamp || 'Just now',
             });
           });
-          if (msgs.length > 0) {
-            setWishes(msgs);
-            try {
+          setWishes(msgs);
+          try {
+            if (msgs.length > 0) {
               localStorage.setItem('zia_guestbook_wishes', JSON.stringify(msgs));
-            } catch {
-              // ignore
+            } else {
+              localStorage.removeItem('zia_guestbook_wishes');
             }
+          } catch {
+            // ignore
           }
         },
         (error) => {
@@ -184,7 +166,8 @@ export const GuestbookSection: React.FC = () => {
   };
 
   return (
-    <section id="guestbook" className="relative py-20 px-4 sm:px-6 overflow-hidden bg-gradient-to-b from-[#FFF9F3] via-[#F8DDE8]/25 to-[#E9DDF7]/25">
+    <section id="wishes" className="relative py-20 px-4 sm:px-6 overflow-hidden bg-gradient-to-b from-[#FFF9F3] via-[#F8DDE8]/25 to-[#E9DDF7]/25 scroll-mt-12">
+      <div id="guestbook" className="absolute -top-24 pointer-events-none" />
       <div className="relative mx-auto max-w-5xl">
         {/* Section Header */}
         <div className="mb-12 text-center">

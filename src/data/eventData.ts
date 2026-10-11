@@ -10,7 +10,7 @@ export const EVENT_DATA: EventDetails = {
   eventDate: '2026-11-14T18:30:00',
   displayDate: 'Saturday, November 14, 2026',
   displayTime: '6:30 PM',
-  venueName: 'Jollibee Bayani Road Taguig',
+  venueName: 'Jollibee – Bayani Road, Taguig City',
   dressCode: {
     title: 'Fairytale Garden Attire',
     description: 'Come in your favorite cheerful pastel princess or fairytale-inspired attire. Soft pastels and warm smiles are welcomed!',
