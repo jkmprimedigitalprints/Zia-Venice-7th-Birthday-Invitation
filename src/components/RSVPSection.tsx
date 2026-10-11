@@ -125,21 +125,21 @@ export const RSVPSection: React.FC = () => {
               <span>⚠️ IMPORTANT NOTICE: LIMITED VENUE CAPACITY</span>
             </div>
 
-            {/* Required Filipino text */}
+            {/* Updated Notice Copy */}
             <div className="space-y-3 font-poppins text-xs sm:text-sm text-[#5C4533] leading-relaxed">
               <p className="font-medium text-[#4A2D1B] text-sm sm:text-base leading-snug">
-                Dahil limitado lamang ang kapasidad ng venue,{' '}
+                Due to the venue’s limited capacity,{' '}
                 <strong className="font-black text-[#9E4D6E] underline decoration-[#E2A662] decoration-2 underline-offset-2">
-                  ONE COMPANION LANG PO ANG PINAPAYAGAN SA BAWAT INVITED GUEST.
+                  EACH INVITED GUEST IS ALLOWED ONLY ONE COMPANION.
                 </strong>
               </p>
 
               <p className="text-[#6C567B] leading-relaxed">
-                Kung may nais po kayong isamang higit sa isang companion, mangyaring i-message muna kami nang personal upang mapag-usapan at makumpirma kung maaari pa itong payagan, depende sa available na kapasidad ng venue.
+                If you wish to bring an additional companion, please message us privately in advance. Any additional companions will be subject to our confirmation based on the venue’s available capacity.
               </p>
 
               <div className="pt-1 flex items-center gap-2 font-semibold text-[#9E4D6E] text-xs sm:text-sm">
-                <span>Maraming salamat po sa inyong pang-unawa at pakikiisa! 💗</span>
+                <span>Thank you for your kind understanding and cooperation! 💗</span>
               </div>
             </div>
           </div>
@@ -291,7 +291,7 @@ export const RSVPSection: React.FC = () => {
               </button>
 
               <p className="text-center text-[11px] text-[#6C567B]/70 font-poppins">
-                🔒 Once submitted, your attendance status is locked to ensure accurate headcount.
+               Once submitted, your RSVP cannot be changed to ensure an accurate guest count.
               </p>
             </form>
           )}
