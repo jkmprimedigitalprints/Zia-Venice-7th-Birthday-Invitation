@@ -36,6 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { label: 'Gallery', href: '#gallery' },
     { label: 'Wishes', href: '#wishes' },
     { label: 'RSVP', href: '#rsvp' },
+    { label: 'Program Flow', href: '#program' },
   ];
 
   return (
@@ -58,8 +59,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         </a>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-6">
-          {navLinks.map((link) => (
+        <nav className="hidden md:flex items-center gap-4 lg:gap-5">
+          {navLinks.filter((link) => link.href !== '#program').map((link) => (
             <a
               key={link.label}
               href={link.href}
@@ -69,11 +70,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             </a>
           ))}
 
+          {/* Program Flow Button at the Far Right */}
+          <a
+            href="#program"
+            className="flex items-center gap-1.5 rounded-full border border-[#C49A55] bg-gradient-to-r from-[#F8DDE8] via-[#FFF9F3] to-[#E9DDF7] px-3.5 py-1.5 font-poppins text-xs font-bold tracking-wider text-[#9E4D6E] shadow-2xs hover:shadow-xs transition-all hover:scale-105 cursor-pointer ml-1"
+          >
+            <Crown className="h-3.5 w-3.5 text-[#C49A55]" />
+            <span>Program Flow</span>
+          </a>
+
           {/* Quick Music Toggle in Nav */}
           <button
             onClick={onMusicToggle}
             aria-label="Toggle Fairytale Music"
-            className="flex items-center gap-1.5 rounded-full border border-[#C49A55]/40 bg-white/80 px-3 py-1.5 text-xs text-[#6C567B] shadow-2xs transition-all hover:border-[#C49A55] hover:bg-white cursor-pointer"
+            className="flex items-center gap-1.5 rounded-full border border-[#C49A55]/40 bg-white/80 px-3 py-1.5 text-xs text-[#6C567B] shadow-2xs transition-all hover:border-[#C49A55] hover:bg-white cursor-pointer ml-1"
           >
             {isMusicPlaying ? (
               <>
@@ -122,9 +132,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                 key={link.label}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="font-poppins text-sm font-semibold tracking-wider text-[#6C567B] py-1.5 border-b border-[#F8DDE8]/50 transition-colors hover:text-[#4A7B9D]"
+                className={`font-poppins text-sm tracking-wider py-1.5 border-b border-[#F8DDE8]/50 transition-colors ${
+                  link.href === '#program'
+                    ? 'font-bold text-[#9E4D6E] flex items-center justify-between'
+                    : 'font-semibold text-[#6C567B] hover:text-[#4A7B9D]'
+                }`}
               >
-                {link.label}
+                <span>{link.label}</span>
+                {link.href === '#program' && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#9E4D6E] text-white">
+                    Royal Flow
+                  </span>
+                )}
               </a>
             ))}
           </div>

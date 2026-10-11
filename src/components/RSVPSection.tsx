@@ -291,7 +291,7 @@ export const RSVPSection: React.FC = () => {
               </button>
 
               <p className="text-center text-[11px] text-[#6C567B]/70 font-poppins">
-               Once submitted, your RSVP cannot be changed to ensure an accurate guest count.
+             Once submitted, your RSVP cannot be changed to ensure an accurate guest count.
               </p>
             </form>
           )}

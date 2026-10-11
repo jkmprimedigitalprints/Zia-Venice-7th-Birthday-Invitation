@@ -12,6 +12,7 @@ import { GallerySection } from './components/GallerySection';
 import { GuestbookSection } from './components/GuestbookSection';
 import { RSVPSection } from './components/RSVPSection';
 import { RSVPTrackingDashboard } from './components/RSVPTrackingDashboard';
+import { ProgramFlowPage } from './components/ProgramFlowPage';
 import { MusicPlayer } from './components/MusicPlayer';
 import { FooterSection } from './components/FooterSection';
 import { fairytaleAudio } from './utils/audioSynth';
@@ -21,17 +22,22 @@ export default function App() {
   const [showIntro, setShowIntro] = useState(true);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [isTrackingView, setIsTrackingView] = useState(false);
+  const [isProgramFlowView, setIsProgramFlowView] = useState(false);
 
-  // Monitor location hash to toggle between Invitation and RSVP Tracking Dashboard
-  // Supports /#rsvp, #rsvp-admin, #tracking
+  // Monitor location hash to toggle between Invitation, Program Flow, and RSVP Tracking Dashboard
+  // Supports /#rsvp, #rsvp-admin, #tracking, #program, #program-flow
   useEffect(() => {
     const handleHashCheck = () => {
       const hash = window.location.hash.toLowerCase();
-      // If user specifically navigates to #rsvp-admin or url contains /#rsvp tracking intent
       if (hash === '#rsvp-admin' || hash === '#tracking') {
         setIsTrackingView(true);
+        setIsProgramFlowView(false);
+      } else if (hash === '#program' || hash === '#program-flow') {
+        setIsProgramFlowView(true);
+        setIsTrackingView(false);
       } else {
         setIsTrackingView(false);
+        setIsProgramFlowView(false);
       }
     };
 
@@ -70,12 +76,20 @@ export default function App() {
   const handleBackToInvitation = () => {
     window.location.hash = '';
     setIsTrackingView(false);
+    setIsProgramFlowView(false);
   };
 
   // If in Protected Real-time RSVP Tracking view
   if (isTrackingView) {
     return (
       <RSVPTrackingDashboard onBackToInvitation={handleBackToInvitation} />
+    );
+  }
+
+  // If in Separate Program Flow view
+  if (isProgramFlowView) {
+    return (
+      <ProgramFlowPage onBackToInvitation={handleBackToInvitation} />
     );
   }
 
