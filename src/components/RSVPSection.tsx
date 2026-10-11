@@ -122,7 +122,7 @@ export const RSVPSection: React.FC = () => {
             {/* Header Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#D96B43] to-[#C94A6E] text-white text-xs sm:text-sm font-bold tracking-wide shadow-xs mb-3.5">
               <AlertTriangle className="h-4 w-4 shrink-0" />
-              <span>⚠️ IMPORTANT NOTICE: LIMITED VENUE CAPACITY</span>
+              <span> IMPORTANT NOTICE: LIMITED VENUE CAPACITY</span>
             </div>
 
             {/* Updated Notice Copy */}
