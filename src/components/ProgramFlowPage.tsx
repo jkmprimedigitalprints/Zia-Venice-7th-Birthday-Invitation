@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { 
-  ArrowLeft, Crown, Sparkles, Heart, Star, Church 
+  ArrowLeft, Crown, Sparkles, Heart, Star, Church, Music 
 } from 'lucide-react';
 import { TRADITIONS_DATA } from '../data/traditionsData';
 
@@ -398,11 +398,6 @@ export const ProgramFlowPage: React.FC<ProgramFlowPageProps> = ({ onBackToInvita
                         <span className="text-sm sm:text-base font-bold text-[#6C567B] font-poppins block">
                           {person.name}
                         </span>
-                        {isDaddyJun && (
-                          <span className="text-[11px] font-semibold text-[#9E4D6E] font-poppins block">
-                            Final Rose & Grand Closing Dance with Princess Zia 💖
-                          </span>
-                        )}
                       </div>
                     </div>
 
@@ -414,6 +409,25 @@ export const ProgramFlowPage: React.FC<ProgramFlowPageProps> = ({ onBackToInvita
                   </div>
                 );
               })}
+            </div>
+          </section>
+
+          {/* 12. Intermission No. of Celebrant */}
+          <section className="relative rounded-3xl bg-gradient-to-br from-[#FFF5EA] via-[#FFF0F4] to-[#FFF9F3] border-2 border-[#C49A55] p-6 sm:p-7 shadow-[0_12px_35px_rgba(196,154,85,0.18)]">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#F8DDE8] to-[#FFF9F3] text-[#9E4D6E] border border-[#C49A55]/40 shadow-xs shrink-0">
+                <Music className="h-6 w-6 sm:h-7 sm:w-7 text-[#C49A55]" />
+              </div>
+
+              <div className="flex-1 space-y-1">
+                <h3 className="font-playfair text-xl sm:text-2xl font-bold text-[#9E4D6E]">
+                  Intermission No. of Celebrant
+                </h3>
+
+                <p className="text-sm font-semibold text-[#6C567B] font-poppins">
+                  A special intermission performance by Princess Zia Venice
+                </p>
+              </div>
             </div>
           </section>
 
