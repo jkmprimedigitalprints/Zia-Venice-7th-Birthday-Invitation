@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Sparkles, Maximize2, X, ChevronLeft, ChevronRight, Crown } from 'lucide-react';
+import { ScrollReveal } from './ScrollReveal';
 
 interface GalleryPhoto {
   slotNumber: number;
@@ -50,138 +51,144 @@ export const GallerySection: React.FC = () => {
     <section id="gallery" className="relative py-20 px-4 sm:px-6">
       <div className="relative z-10 mx-auto max-w-6xl">
         {/* Section Header */}
-        <div className="text-center mb-12">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#C49A55]/30 bg-white/80 px-4 py-1.5 shadow-xs">
-            <Sparkles className="h-3.5 w-3.5 text-[#C49A55]" />
-            <span className="font-poppins text-xs font-semibold tracking-wider text-[#4A7B9D]">
-              Royal Gallery · Precious Memories
-            </span>
-          </div>
+        <ScrollReveal animation="fade-down" duration={650}>
+          <div className="text-center mb-12">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#C49A55]/30 bg-white/80 px-4 py-1.5 shadow-xs">
+              <Sparkles className="h-3.5 w-3.5 text-[#C49A55]" />
+              <span className="font-poppins text-xs font-semibold tracking-wider text-[#4A7B9D]">
+                Royal Gallery · Precious Memories
+              </span>
+            </div>
 
-          <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-bold text-[#6C567B]">
-            Seven Magical Moments
-          </h2>
-          <p className="mt-2 font-sacramento text-3xl sm:text-4xl text-[#9E4D6E] font-normal">
-            Moments with Princess Zia Venice
-          </p>
-        </div>
+            <h2 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-bold text-[#6C567B]">
+              Seven Magical Moments
+            </h2>
+            <p className="mt-2 font-sacramento text-3xl sm:text-4xl text-[#9E4D6E] font-normal">
+              Moments with Princess Zia Venice
+            </p>
+          </div>
+        </ScrollReveal>
 
         {/* Fairytale Side-by-Side Showcase:
             Side 1: Main Picture (mas pinalaki ang height sa desktop view, full & uncropped)
             Side 2: The 6 Pictures (1 side lang, 2 cols x 3 rows grid, matching height) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 items-stretch">
-          {/* Side 1: Main Picture (Full & Uncropped, with tall desktop height matching the 6 photos) */}
-          <div
-            onClick={() => setSelectedPhotoIndex(0)}
-            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border-2 border-[#C49A55] bg-white shadow-[0_10px_30px_rgba(108,86,123,0.08)] cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-[#C49A55] hover:shadow-[0_16px_40px_rgba(196,154,85,0.25)] h-[520px] sm:h-[600px] md:h-[720px] lg:h-[780px]"
-          >
-            {/* Full uncropped photo container: object-contain with generous space so no part of the photo is cropped */}
-            <div className="relative w-full h-full bg-gradient-to-b from-[#FFF9F3] via-[#F8DDE8]/20 to-[#FFF9F3] overflow-hidden flex flex-col items-center justify-between p-3 sm:p-4 md:p-5">
-              {/* Badges on top of Main Picture */}
-              <div className="w-full flex items-center justify-between z-10 px-1 pt-1 pb-2">
-                <div className="flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-1.5 shadow-xs border border-[#C49A55]/40 text-[#6C567B]">
-                  <Crown className="h-4 w-4 text-[#C49A55]" />
-                  <span className="font-poppins text-xs font-semibold text-[#6C567B]">
-                    Main Royal Portrait
-                  </span>
+          {/* Side 1: Main Picture with Scroll Animation */}
+          <ScrollReveal animation="fade-right" delay={120} duration={750} className="h-full">
+            <div
+              onClick={() => setSelectedPhotoIndex(0)}
+              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border-2 border-[#C49A55] bg-white shadow-[0_10px_30px_rgba(108,86,123,0.08)] cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-[#C49A55] hover:shadow-[0_16px_40px_rgba(196,154,85,0.25)] h-[520px] sm:h-[600px] md:h-[720px] lg:h-[780px]"
+            >
+              {/* Full uncropped photo container */}
+              <div className="relative w-full h-full bg-gradient-to-b from-[#FFF9F3] via-[#F8DDE8]/20 to-[#FFF9F3] overflow-hidden flex flex-col items-center justify-between p-3 sm:p-4 md:p-5">
+                {/* Badges on top of Main Picture */}
+                <div className="w-full flex items-center justify-between z-10 px-1 pt-1 pb-2">
+                  <div className="flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-1.5 shadow-xs border border-[#C49A55]/40 text-[#6C567B]">
+                    <Crown className="h-4 w-4 text-[#C49A55]" />
+                    <span className="font-poppins text-xs font-semibold text-[#6C567B]">
+                      Main Royal Portrait
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1 rounded-full bg-[#9E4D6E] px-3 py-1.5 text-xs font-semibold text-white shadow-xs">
+                    <Sparkles className="h-3.5 w-3.5 text-[#FFF9F3]" />
+                    <span>Full View</span>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-1 rounded-full bg-[#9E4D6E] px-3 py-1.5 text-xs font-semibold text-white shadow-xs">
-                  <Sparkles className="h-3.5 w-3.5 text-[#FFF9F3]" />
-                  <span>Full View</span>
+                {/* Main Photo */}
+                <div className="relative flex-1 w-full flex items-center justify-center min-h-0 py-2">
+                  <img
+                    src={mainPhoto.src}
+                    alt={mainPhoto.alt}
+                    loading="eager"
+                    decoding="async"
+                    className="max-h-full max-w-full w-auto h-auto object-contain rounded-2xl transition-transform duration-500 group-hover:scale-[1.02] drop-shadow-md select-none mx-auto"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      const fallback = FALLBACK_IMAGES[1];
+                      if (fallback && target.src !== fallback) {
+                        target.src = fallback;
+                      }
+                    }}
+                  />
                 </div>
-              </div>
 
-              {/* Main Photo: Completely full and uncropped, object-contain, tall majestic display */}
-              <div className="relative flex-1 w-full flex items-center justify-center min-h-0 py-2">
-                <img
-                  src={mainPhoto.src}
-                  alt={mainPhoto.alt}
-                  loading="eager"
-                  decoding="async"
-                  className="max-h-full max-w-full w-auto h-auto object-contain rounded-2xl transition-transform duration-500 group-hover:scale-[1.02] drop-shadow-md select-none mx-auto"
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    const fallback = FALLBACK_IMAGES[1];
-                    if (fallback && target.src !== fallback) {
-                      target.src = fallback;
-                    }
-                  }}
-                />
-              </div>
-
-              {/* Bottom Caption Bar (clean footer bar, not covering the picture) */}
-              <div className="w-full mt-2 z-10 flex items-center justify-between rounded-2xl bg-white/95 backdrop-blur-md px-4 py-2.5 border border-[#C49A55]/30 shadow-xs transition-all duration-300 group-hover:bg-white">
-                <div>
-                  <p className="font-sacramento text-2xl sm:text-3xl lg:text-4xl text-[#9E4D6E] font-normal leading-tight">
-                    Princess Zia Venice
-                  </p>
-                  <p className="font-poppins text-[10px] sm:text-xs font-medium text-[#4A7B9D]">
-                    7th Birthday Fairytale Celebration · Click to view full
-                  </p>
-                </div>
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFF9F3] border border-[#C49A55]/40 text-[#6C567B] shadow-xs group-hover:scale-105 transition-transform">
-                  <Maximize2 className="h-4 w-4 text-[#C49A55]" />
+                {/* Bottom Caption Bar */}
+                <div className="w-full mt-2 z-10 flex items-center justify-between rounded-2xl bg-white/95 backdrop-blur-md px-4 py-2.5 border border-[#C49A55]/30 shadow-xs transition-all duration-300 group-hover:bg-white">
+                  <div>
+                    <p className="font-sacramento text-2xl sm:text-3xl lg:text-4xl text-[#9E4D6E] font-normal leading-tight">
+                      Princess Zia Venice
+                    </p>
+                    <p className="font-poppins text-[10px] sm:text-xs font-medium text-[#4A7B9D]">
+                      7th Birthday Fairytale Celebration · Click to view full
+                    </p>
+                  </div>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FFF9F3] border border-[#C49A55]/40 text-[#6C567B] shadow-xs group-hover:scale-105 transition-transform">
+                    <Maximize2 className="h-4 w-4 text-[#C49A55]" />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
 
-          {/* Side 2: The 6 Pictures (1 side lang, 2 cols x 3 rows grid matching height of Main Picture) */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 h-[520px] sm:h-[600px] md:h-[720px] lg:h-[780px]">
-            {sixPhotos.map((photo, i) => {
-              const originalIndex = i + 1; // index in GALLERY_PHOTOS
-              return (
-                <div
-                  key={photo.slotNumber}
-                  onClick={() => setSelectedPhotoIndex(originalIndex)}
-                  className="group relative flex flex-col overflow-hidden rounded-2xl border-2 border-[#C49A55]/30 bg-white shadow-[0_4px_16px_rgba(108,86,123,0.06)] cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-[#C49A55] hover:shadow-[0_10px_25px_rgba(196,154,85,0.2)] h-full"
-                >
-                  <div className="relative w-full h-full bg-[#FFF9F3]/80 overflow-hidden flex items-center justify-center p-1 sm:p-1.5">
-                    <img
-                      src={photo.src}
-                      alt={photo.alt}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover object-top rounded-xl transition-transform duration-500 group-hover:scale-105"
-                      onError={(e) => {
-                        const target = e.currentTarget;
-                        const fallback = FALLBACK_IMAGES[photo.slotNumber];
-                        if (fallback && target.src !== fallback) {
-                          target.src = fallback;
-                        }
-                      }}
-                    />
+          {/* Side 2: The 6 Pictures with Scroll Animation */}
+          <ScrollReveal animation="fade-left" delay={200} duration={750} className="h-full">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 h-[520px] sm:h-[600px] md:h-[720px] lg:h-[780px]">
+              {sixPhotos.map((photo, i) => {
+                const originalIndex = i + 1; // index in GALLERY_PHOTOS
+                return (
+                  <div
+                    key={photo.slotNumber}
+                    onClick={() => setSelectedPhotoIndex(originalIndex)}
+                    className="group relative flex flex-col overflow-hidden rounded-2xl border-2 border-[#C49A55]/30 bg-white shadow-[0_4px_16px_rgba(108,86,123,0.06)] cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-[#C49A55] hover:shadow-[0_10px_25px_rgba(196,154,85,0.2)] h-full"
+                  >
+                    <div className="relative w-full h-full bg-[#FFF9F3]/80 overflow-hidden flex items-center justify-center p-1 sm:p-1.5">
+                      <img
+                        src={photo.src}
+                        alt={photo.alt}
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover object-top rounded-xl transition-transform duration-500 group-hover:scale-105"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          const fallback = FALLBACK_IMAGES[photo.slotNumber];
+                          if (fallback && target.src !== fallback) {
+                            target.src = fallback;
+                          }
+                        }}
+                      />
 
-                    {/* Gradient Overlay on Hover */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#543B59]/75 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-end justify-between p-2.5 rounded-xl">
-                      <div className="text-white">
-                        <p className="font-playfair text-xs font-semibold">
-                          Moment {photo.slotNumber}
-                        </p>
-                        <p className="font-poppins text-[9px] text-white/80">
-                          Click to expand
-                        </p>
+                      {/* Gradient Overlay on Hover */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#543B59]/75 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-end justify-between p-2.5 rounded-xl">
+                        <div className="text-white">
+                          <p className="font-playfair text-xs font-semibold">
+                            Moment {photo.slotNumber}
+                          </p>
+                          <p className="font-poppins text-[9px] text-white/80">
+                            Click to expand
+                          </p>
+                        </div>
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/30 backdrop-blur-xs text-white">
+                          <Maximize2 className="h-3 w-3" />
+                        </div>
                       </div>
-                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/30 backdrop-blur-xs text-white">
-                        <Maximize2 className="h-3 w-3" />
+
+                      {/* Corner Crown Badge */}
+                      <div className="absolute top-2.5 left-2.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 shadow-xs border border-[#C49A55]/40 text-[#C49A55]">
+                        <Crown className="h-3 w-3" />
                       </div>
-                    </div>
 
-                    {/* Corner Crown Badge */}
-                    <div className="absolute top-2.5 left-2.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/90 shadow-xs border border-[#C49A55]/40 text-[#C49A55]">
-                      <Crown className="h-3 w-3" />
-                    </div>
-
-                    {/* Slot badge */}
-                    <div className="absolute top-2.5 right-2.5 rounded-full bg-white/90 px-1.5 py-0.5 text-[9px] font-semibold text-[#6C567B] border border-[#C49A55]/30 shadow-xs">
-                      #{photo.slotNumber}
+                      {/* Slot badge */}
+                      <div className="absolute top-2.5 right-2.5 rounded-full bg-white/90 px-1.5 py-0.5 text-[9px] font-semibold text-[#6C567B] border border-[#C49A55]/30 shadow-xs">
+                        #{photo.slotNumber}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </ScrollReveal>
         </div>
 
         {/* Modal Lightbox - Compact & Small (Maliit lang), Full uncropped photo */}

@@ -3,6 +3,7 @@ import { Sparkles, MessageCircleHeart, Send, Heart } from 'lucide-react';
 import { GuestWish } from '../types';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { collection, onSnapshot, doc, setDoc } from 'firebase/firestore';
+import { ScrollReveal } from './ScrollReveal';
 
 export const GuestbookSection: React.FC = () => {
   const [wishes, setWishes] = useState<GuestWish[]>([]);
