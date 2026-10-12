@@ -229,22 +229,32 @@ export const ProgramFlowPage: React.FC<ProgramFlowPageProps> = ({ onBackToInvita
             </div>
           </section>
 
-          {/* 7. 7 Mini Cakes 🧁 */}
+          {/* 7. 7 Shoes / Sandals 👡 */}
           <section className="rounded-3xl bg-white/95 border border-[#C49A55]/30 p-6 sm:p-7 shadow-[0_8px_30px_rgba(108,86,123,0.06)] backdrop-blur-md space-y-4">
-            <div className="flex items-center justify-between border-b border-[#F8DDE8] pb-3.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#F8DDE8] pb-3.5">
               <div className="flex items-center gap-3">
-                <span className="text-2xl sm:text-3xl">{TRADITIONS_DATA.miniCakes.symbol}</span>
-                <h3 className="font-playfair text-lg sm:text-xl font-bold text-[#6C567B]">
-                  {TRADITIONS_DATA.miniCakes.label}
-                </h3>
+                <span className="text-2xl sm:text-3xl">{TRADITIONS_DATA.shoes.symbol}</span>
+                <div>
+                  <h3 className="font-playfair text-lg sm:text-xl font-bold text-[#6C567B]">
+                    {TRADITIONS_DATA.shoes.label}
+                  </h3>
+                  <p className="text-xs font-semibold text-[#9E4D6E] font-poppins">
+                    {TRADITIONS_DATA.shoes.sizeGuide}
+                  </p>
+                </div>
               </div>
-              <span className="px-2.5 py-1 rounded-full bg-[#FFF9F3] border border-[#F8DDE8] text-[11px] font-semibold text-[#9E4D6E]">
-                7 Participants
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-1 rounded-full bg-[#F8DDE8]/70 border border-[#F8DDE8] text-[11px] font-semibold text-[#9E4D6E]">
+                  Size 32–34
+                </span>
+                <span className="px-2.5 py-1 rounded-full bg-[#FFF9F3] border border-[#F8DDE8] text-[11px] font-semibold text-[#9E4D6E]">
+                  7 Participants
+                </span>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-              {TRADITIONS_DATA.miniCakes.list.map((person) => (
+              {TRADITIONS_DATA.shoes.list.map((person) => (
                 <div
                   key={person.number}
                   className="flex items-center gap-3 rounded-2xl border border-[#F8DDE8] bg-[#FFF9F3]/60 px-4 py-3 hover:border-[#C49A55] transition-colors"
@@ -359,7 +369,7 @@ export const ProgramFlowPage: React.FC<ProgramFlowPageProps> = ({ onBackToInvita
                 <div>
                   <div className="inline-flex items-center gap-1 text-[11px] font-bold tracking-wider uppercase text-[#9E4D6E]">
                     <Sparkles className="h-3 w-3" />
-                    <span></span>
+                    <span>Grand Finale Ceremony</span>
                   </div>
                   <h3 className="font-playfair text-xl sm:text-2xl font-bold text-[#9E4D6E]">
                     {TRADITIONS_DATA.roses.label}
@@ -368,7 +378,7 @@ export const ProgramFlowPage: React.FC<ProgramFlowPageProps> = ({ onBackToInvita
               </div>
 
               <span className="self-start sm:self-center px-3 py-1 rounded-full bg-[#9E4D6E] text-white text-xs font-bold shadow-2xs">
-              
+                Final Ceremony
               </span>
             </div>
 

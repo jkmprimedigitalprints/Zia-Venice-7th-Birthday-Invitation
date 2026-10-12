@@ -8,6 +8,7 @@ export type TraditionKey =
   | 'chocolates'
   | 'makeups'
   | 'blueBills'
+  | 'shoes'
   | 'miniCakes'
   | 'wishes'
   | 'candles'
@@ -18,6 +19,7 @@ export interface TraditionCategory {
   label: string;
   symbol: string;
   itemType: string;
+  sizeGuide?: string;
   list: TraditionPerson[];
 }
 
@@ -26,11 +28,28 @@ export const TRADITIONS_ORDER: TraditionKey[] = [
   'chocolates',
   'makeups',
   'blueBills',
-  'miniCakes',
+  'shoes',
   'wishes',
   'candles',
   'roses',
 ];
+
+const SHOES_SANDALS_CATEGORY: TraditionCategory = {
+  id: 'shoes',
+  label: '7 SHOES / SANDALS',
+  symbol: '👡',
+  itemType: 'Shoes/Sandals',
+  sizeGuide: 'Size Guide: 32–34',
+  list: [
+    { number: 1, name: 'Ninong Dongke' },
+    { number: 2, name: 'Ninong Tinoy' },
+    { number: 3, name: 'Ninang Jacky Rodriguez' },
+    { number: 4, name: 'Ninang Sha' },
+    { number: 5, name: 'Ninong Peter' },
+    { number: 6, name: 'Ninong Reschian' },
+    { number: 7, name: 'Ninong Lee' },
+  ],
+};
 
 export const TRADITIONS_DATA: Record<TraditionKey, TraditionCategory> = {
   gifts: {
@@ -93,21 +112,8 @@ export const TRADITIONS_DATA: Record<TraditionKey, TraditionCategory> = {
       { number: 7, name: 'Ninong Richard' },
     ],
   },
-  miniCakes: {
-    id: 'miniCakes',
-    label: '7 MINI CAKES',
-    symbol: '🧁',
-    itemType: 'Mini Cake',
-    list: [
-      { number: 1, name: 'Ninong Dongke' },
-      { number: 2, name: 'Ninong Tinoy' },
-      { number: 3, name: 'Ninang Jacky Rodriguez' },
-      { number: 4, name: 'Ninang Sha' },
-      { number: 5, name: 'Ninong Peter' },
-      { number: 6, name: 'Ninong Reschian' },
-      { number: 7, name: 'Ninong Lee' },
-    ],
-  },
+  shoes: SHOES_SANDALS_CATEGORY,
+  miniCakes: SHOES_SANDALS_CATEGORY, // Backward compatibility alias
   wishes: {
     id: 'wishes',
     label: '7 WISHES',
