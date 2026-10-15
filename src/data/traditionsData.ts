@@ -9,6 +9,7 @@ export type TraditionKey =
   | 'makeups'
   | 'blueBills'
   | 'shoes'
+  | 'dresses'
   | 'miniCakes'
   | 'wishes'
   | 'candles'
@@ -29,6 +30,7 @@ export const TRADITIONS_ORDER: TraditionKey[] = [
   'makeups',
   'blueBills',
   'shoes',
+  'dresses',
   'wishes',
   'candles',
   'roses',
@@ -114,6 +116,21 @@ export const TRADITIONS_DATA: Record<TraditionKey, TraditionCategory> = {
   },
   shoes: SHOES_SANDALS_CATEGORY,
   miniCakes: SHOES_SANDALS_CATEGORY, // Backward compatibility alias
+  dresses: {
+    id: 'dresses',
+    label: '7 DRESS',
+    symbol: '👗',
+    itemType: 'Dress',
+    list: [
+      { number: 1, name: 'Ninong Buboy Tapang' },
+      { number: 2, name: 'Ninong Jhunas' },
+      { number: 3, name: 'Ninong Jude' },
+      { number: 4, name: 'Ninang Angelica Palomo' },
+      { number: 5, name: 'Mommy Maryeth' },
+      { number: 6, name: 'Nanay Elith' },
+      { number: 7, name: 'Lola Nel' },
+    ],
+  },
   wishes: {
     id: 'wishes',
     label: '7 WISHES',

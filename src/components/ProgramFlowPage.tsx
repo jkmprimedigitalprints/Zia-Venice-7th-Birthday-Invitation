@@ -270,7 +270,38 @@ export const ProgramFlowPage: React.FC<ProgramFlowPageProps> = ({ onBackToInvita
             </div>
           </section>
 
-          {/* 8. 7 Wishes 🪄 */}
+          {/* 8. 7 Dress 👗 */}
+          <section className="rounded-3xl bg-white/95 border border-[#C49A55]/30 p-6 sm:p-7 shadow-[0_8px_30px_rgba(108,86,123,0.06)] backdrop-blur-md space-y-4">
+            <div className="flex items-center justify-between border-b border-[#F8DDE8] pb-3.5">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl sm:text-3xl">{TRADITIONS_DATA.dresses.symbol}</span>
+                <h3 className="font-playfair text-lg sm:text-xl font-bold text-[#6C567B]">
+                  {TRADITIONS_DATA.dresses.label}
+                </h3>
+              </div>
+              <span className="px-2.5 py-1 rounded-full bg-[#FFF9F3] border border-[#F8DDE8] text-[11px] font-semibold text-[#9E4D6E]">
+                7 Participants
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+              {TRADITIONS_DATA.dresses.list.map((person) => (
+                <div
+                  key={person.number}
+                  className="flex items-center gap-3 rounded-2xl border border-[#F8DDE8] bg-[#FFF9F3]/60 px-4 py-3 hover:border-[#C49A55] transition-colors"
+                >
+                  <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#F8DDE8] text-[#9E4D6E] font-poppins text-xs font-bold shrink-0">
+                    {person.number}
+                  </div>
+                  <span className="text-xs sm:text-sm font-semibold text-[#6C567B] font-poppins">
+                    {person.name}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* 9. 7 Wishes 🪄 */}
           <section className="rounded-3xl bg-white/95 border border-[#C49A55]/30 p-6 sm:p-7 shadow-[0_8px_30px_rgba(108,86,123,0.06)] backdrop-blur-md space-y-4">
             <div className="flex items-center justify-between border-b border-[#F8DDE8] pb-3.5">
               <div className="flex items-center gap-3">
@@ -301,7 +332,7 @@ export const ProgramFlowPage: React.FC<ProgramFlowPageProps> = ({ onBackToInvita
             </div>
           </section>
 
-          {/* 9. 7 Candles 🕯️ */}
+          {/* 10. 7 Candles 🕯️ */}
           <section className="rounded-3xl bg-white/95 border border-[#C49A55]/30 p-6 sm:p-7 shadow-[0_8px_30px_rgba(108,86,123,0.06)] backdrop-blur-md space-y-4">
             <div className="flex items-center justify-between border-b border-[#F8DDE8] pb-3.5">
               <div className="flex items-center gap-3">
@@ -332,7 +363,7 @@ export const ProgramFlowPage: React.FC<ProgramFlowPageProps> = ({ onBackToInvita
             </div>
           </section>
 
-          {/* 10. Special Birthday Message (Distinct Visual Highlight, Immediately Before 7 Roses) */}
+          {/* 11. Special Birthday Message (Distinct Visual Highlight, Immediately Before 7 Roses) */}
           <section className="relative rounded-3xl bg-gradient-to-r from-[#FFF5EA] via-[#F8DDE8]/80 to-[#E9DDF7]/80 border-2 border-[#C49A55] p-6 sm:p-7 shadow-[0_12px_40px_rgba(196,154,85,0.22)] overflow-hidden">
             {/* Glow backdrop accent */}
             <div className="pointer-events-none absolute -right-6 -bottom-6 text-[#C49A55]/15">
@@ -361,7 +392,7 @@ export const ProgramFlowPage: React.FC<ProgramFlowPageProps> = ({ onBackToInvita
             </div>
           </section>
 
-          {/* 11. 7 Roses 🌹 (FINAL CEREMONY OF THE PROGRAM - Elegant & Memorable Closing Highlight) */}
+          {/* 12. 7 Roses 🌹 (FINAL CEREMONY OF THE PROGRAM - Elegant & Memorable Closing Highlight) */}
           <section className="relative rounded-3xl bg-gradient-to-br from-[#FFF0F4] via-[#FFF9F3] to-[#F8DDE8]/90 border-2 border-[#9E4D6E] p-6 sm:p-7 shadow-[0_14px_45px_rgba(158,77,110,0.2)] overflow-hidden space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F8DDE8] pb-4">
               <div className="flex items-center gap-3.5">
@@ -422,7 +453,7 @@ export const ProgramFlowPage: React.FC<ProgramFlowPageProps> = ({ onBackToInvita
             </div>
           </section>
 
-          {/* 12. Intermission No. of Celebrant */}
+          {/* 13. Intermission No. of Celebrant */}
           <section className="relative rounded-3xl bg-gradient-to-br from-[#FFF5EA] via-[#FFF0F4] to-[#FFF9F3] border-2 border-[#C49A55] p-6 sm:p-7 shadow-[0_12px_35px_rgba(196,154,85,0.18)]">
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#F8DDE8] to-[#FFF9F3] text-[#9E4D6E] border border-[#C49A55]/40 shadow-xs shrink-0">

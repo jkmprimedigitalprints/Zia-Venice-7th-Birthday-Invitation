@@ -30,7 +30,7 @@ export const SevenTraditionsSection: React.FC = () => {
           </div>
         </ScrollReveal>
 
-        {/* Tab Buttons (Ordered: Gifts, Chocolates, Make Up, Blue Bills, Shoes/Sandals, Wishes, Candles, Roses) */}
+        {/* Tab Buttons (Ordered: Gifts, Chocolates, Make Up, Blue Bills, Shoes/Sandals, Dress, Wishes, Candles, Roses) */}
         <ScrollReveal animation="fade-up" delay={100} duration={650}>
           <div className="mb-10 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             {TRADITIONS_ORDER.map((tabKey) => {
